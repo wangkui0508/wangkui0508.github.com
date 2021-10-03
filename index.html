@@ -1,0 +1,82 @@
+<html>
+<head>
+<script src="/postMessageProxy.js" type="application/javascript"></script>
+<script>
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+	
+function uint8ArrayToHex(u8arr) {
+	var res = ""
+	for (var i = 0; i < u8arr.byteLength; i++) {
+		res += u8arr[i].toString(16).padStart(2, "0")
+	}
+	return res
+}
+
+async function generate() {
+	const preImage = await crypto.getRandomValues(new Uint8Array(32))
+	const hashBuffer = await crypto.subtle.digest("SHA-256", preImage)
+	const hashHex = uint8ArrayToHex(new Uint8Array(hashBuffer))
+	const preImageHex = uint8ArrayToHex(preImage)
+
+	const coinType = "0x265bD28d79400D55a1665707Fa14A72978FA6043"
+	const prob = document.getElementById("prob").value
+	console.log("prob", prob)
+	const amount = document.getElementById("amount").value
+	console.log("amount", amount)
+
+	const windowPostMessageProxy = createPostMessageProxy()
+	var btnFrame = document.getElementById("btnFrame")
+	url = "https://www.blindbox.cash/pay.html?target=0x5637c9fbFf9FAf5f534d0a88199feCD97357635B"
+	if(document.getElementById("darkmode").checked) {
+		url += "&mode=dark"
+	} else {
+		url += "&mode=light"
+	}
+	url += "&prob="+prob
+	url += "&value="+amount
+	url += "&hash="+hashHex
+	console.log("url", url)
+	btnFrame.src = url
+
+	btnFrame.onload = async function() {
+		var req = {command: "getStatus"}
+		for(var i=0; i<10; i++) {
+			var resp = await windowPostMessageProxy.postMessage(btnFrame.contentWindow, req)
+			console.log("resp", resp)
+			if(resp.status.withWallet) {
+				break
+			}
+			await sleep(500)
+		}
+		req.command = "getReadyToPay"
+		req.coinType = coinType	
+		req.preImage = preImageHex	
+		var resp = await windowPostMessageProxy.postMessage(btnFrame.contentWindow, req)
+		console.log("resp2", resp)
+		delete btnFrame.onload
+	}
+}
+	
+async function messageHandler(event) {
+	console.log("event.data", event.data)
+}
+
+window.addEventListener("message", messageHandler, false)
+</script>
+</head>
+<body style="background-color: lightgreen; font-size: 24px">
+<div style="width: 800px; margin: auto;">
+<!-- hash preimage target cointype-->
+Probablility: <input type="text" id="prob"><br>
+Amount: <input type="text" id="amount"><br>
+<input type="radio" id="darkmode" name="mode" value="dark" checked> dark mode <br>
+<input type="radio" name="mode" value="light"> light mode<br>
+<button onclick="generate()">Generate Payment Button</button>
+<hr>
+<iframe id="btnFrame" frameborder="0" scrolling="no"
+	style="width: 161px; height: 56px; border-radius: 10px; border: 0;"><iframe>
+</div>
+</body>
+</html>
