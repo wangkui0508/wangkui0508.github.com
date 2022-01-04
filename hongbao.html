@@ -1,0 +1,14 @@
+<html><body><script>const url = new URL(location.href);
+		const msg = url.searchParams.get("msg");
+		if(msg) {
+		window.parent.postMessage(
+		    {
+			event_id: "hongbao_cors_message",
+			hb_map: {"0x1E69f1802c8026442d138BfD3da8A9c1a595f6B0": "ACZb0o15QA1VoWZXB_oUpyl4-mBDAAAAAAAAAAAAAAPoAFj6Ox8S2PUC2FY3yfv_n69fU00KiBmf7NlzV2Nbnp06nm5GV2KhJTyi3NlDazIueOLLI3sf3Nxogk9smT0aU1mKLib_18xmqXQnELjjewKjaaJsW4p3J6sSJyACJBxCZXN0IFdpc2hlcyEK5oGt5Zac5Y-R6LSi7aC87b6J",
+	}
+		    },
+		    "*"
+		);
+		} else {
+		const url = "https://hongbao.click/get?s="+encodeURIComponent(window.location.href)
+		window.location.href = url} </script></body></html>
