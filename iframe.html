@@ -1,0 +1,12 @@
+<html>
+	<head>
+<script>
+window.addEventListener("DOMContentLoaded", (event) => {
+    console.log("Hello Parent");
+    window.parent.postMessage("Hello Parent", "*");
+});
+</script>
+	</head>
+	<body>
+	</body>
+</html>
