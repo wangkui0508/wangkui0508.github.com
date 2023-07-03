@@ -3,15 +3,15 @@
 <script>
 window.addEventListener("DOMContentLoaded", (event) => {
     console.log("Hello Parent");
-    window.parent.postMessage("Hello Parent", "*");
+    window.accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
+    window.parent.postMessage(window.accounts[0] + "Hello Parent", "*");
 });
 
 window.addEventListener('message', async function(event) {
     if(event.origin != "https://hotterpotter.github.io") {
         return; //ignore self-generated messages
     }
-    const accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
-    var t = accounts[0] + " received from the parent: " + event.data + " | " + event.origin + "<br>";
+    var t = window.accounts[0] + " received from the parent: " + event.data + " | " + event.origin + "<br>";
     document.getElementById("myDiv").innerHTML += t;
 });
 </script>
