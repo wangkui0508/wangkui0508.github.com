@@ -7,6 +7,9 @@ window.addEventListener("DOMContentLoaded", (event) => {
 });
 
 window.addEventListener('message', async function(event) {
+    if(event.origin != "https://hotterpotter.github.io") {
+        return; //ignore self-generated messages
+    }
     const accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
     var t = accoutns[0] + " received from the parent: " + event.data + " | " + event.origin + "<br>";
     document.getElementById("myDiv").innerHTML += t;
