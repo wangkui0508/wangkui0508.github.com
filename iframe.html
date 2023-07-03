@@ -7,7 +7,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
 });
 
 window.addEventListener('message', function(event) {
-        var t = "Message received from the parent: " + event.data+"<br>";
+        var t = "Message received from the parent: " + event.data + " | " + event.origin + "<br>";
         document.getElementById("myDiv").innerHTML += t;
 });
 </script>
