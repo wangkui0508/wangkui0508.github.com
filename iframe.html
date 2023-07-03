@@ -5,8 +5,15 @@ window.addEventListener("DOMContentLoaded", (event) => {
     console.log("Hello Parent");
     window.parent.postMessage("Hello Parent", "*");
 });
+
+window.addEventListener('message', function(event) {
+        var t = "Message received from the parent: " + event.data+"<br>";
+        document.getElementById("myDiv").innerHTML += t;
+});
 </script>
 	</head>
 	<body>
+		<div id="myDiv">
+		</div>
 	</body>
 </html>
