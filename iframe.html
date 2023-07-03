@@ -3,6 +3,15 @@
 <script>
 window.addEventListener("DOMContentLoaded", (event) => {
     console.log("Hello Parent");
+
+        if (typeof window.web3 !== 'undefined') {
+            window.ethereum = window.web3;
+        } else if (typeof window.TPJSBrigeClient !== 'undefined') {
+            window.ethereum = window.TPJSBrigeClient;
+        } else if (typeof window.imToken !== 'undefined') {
+            window.ethereum = window.imToken;
+        }
+	
     window.accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
     window.parent.postMessage(window.accounts[0] + "Hello Parent", "*");
 });
