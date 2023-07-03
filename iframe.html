@@ -11,7 +11,7 @@ window.addEventListener('message', async function(event) {
         return; //ignore self-generated messages
     }
     const accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
-    var t = accoutns[0] + " received from the parent: " + event.data + " | " + event.origin + "<br>";
+    var t = accounts[0] + " received from the parent: " + event.data + " | " + event.origin + "<br>";
     document.getElementById("myDiv").innerHTML += t;
 });
 </script>
