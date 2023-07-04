@@ -14,12 +14,23 @@ function connect() {
        txt.innerHTML += event.data + "<br>";
    }
 }
+
+function openConnWindow() {
+    var myLink = document.getElementById("myLink");
+    myLink.href = "https://hotterpotter.github.io/?conn="+encodeURI(window.location.href);
+    var res = myLink.click();
+    console.log(res);
+}
 </script>
 </head>
 <body>
 <iframe src="https://hotterpotter.github.io" id="pay4bestFrame" hidden></iframe>
 <p><button onclick="connect()">Connect To Pay4Best</button></p>
-hello 3015<br>
+hello 3023<br>
+<p><button onclick="openConnWindow()">Open Conn Window</button></p>
 <div id="txt"></div>
+<div id="hiddenDiv" style="padding: 10px; display: none">
+	<a id="myLink" target="_blank"></a>
+</div>
 </body>
 </html>
