@@ -17,7 +17,9 @@ function connect() {
 
 function openConnWindow() {
     var myLink = document.getElementById("myLink");
-    myLink.href = "https://hotterpotter.github.io/?conn="+encodeURI(window.location.href);
+    const origin = location.protocol+"//"+location.host;
+    myLink.href = "https://hotterpotter.github.io/?conn="+encodeURI(origin);
+    myLink.innerText = myLink.href;
     var res = myLink.click();
     console.log(res);
 }
@@ -29,8 +31,7 @@ function openConnWindow() {
 hello 3023<br>
 <p><button onclick="openConnWindow()">Open Conn Window</button></p>
 <div id="txt"></div>
-<div id="hiddenDiv" style="padding: 10px; display: none">
+<hr>
 	<a id="myLink" target="_blank"></a>
-</div>
 </body>
 </html>
