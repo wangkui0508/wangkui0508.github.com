@@ -13,9 +13,9 @@ window.addEventListener("DOMContentLoaded", async function(event) {
         } else if (typeof window.imToken !== 'undefined') {
             window.ethereum = window.imToken;
         }
-    alert(window.ethereum);
 	
     window.accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
+    console.log(window.accounts);
     window.parent.postMessage(window.accounts[0] + "Hello Parent", "*");
 });
 
