@@ -1,0 +1,115 @@
+<html>
+<head>
+<script src="/postMessageProxy.js" type="application/javascript"></script>
+<script>
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+	
+function uint8ArrayToHex(u8arr) {
+	var res = ""
+	for (var i = 0; i < u8arr.byteLength; i++) {
+		res += u8arr[i].toString(16).padStart(2, "0")
+	}
+	return res
+}
+
+async function generate() {
+	const preImage = await crypto.getRandomValues(new Uint8Array(32))
+	const hashBuffer = await crypto.subtle.digest("SHA-256", preImage)
+	const hashHex = uint8ArrayToHex(new Uint8Array(hashBuffer))
+	const preImageHex = uint8ArrayToHex(preImage)
+
+	const coinType = "0x265bD28d79400D55a1665707Fa14A72978FA6043"
+	const prob = document.getElementById("prob").value
+	console.log("prob", prob)
+	const amount = document.getElementById("amount").value
+	console.log("amount", amount)
+
+	const windowPostMessageProxy = createPostMessageProxy()
+	var btnFrame = document.getElementById("btnFrame")
+	url = "https://www.blindbox.cash/pay.html?target=0x5637c9fbFf9FAf5f534d0a88199feCD97357635B"
+	if(document.getElementById("darkmode").checked) {
+		url += "&mode=dark"
+	} else {
+		url += "&mode=light"
+	}
+	url += "&prob="+prob
+	url += "&value="+amount
+	url += "&hash="+hashHex
+	console.log("url", url)
+	btnFrame.src = url
+
+	btnFrame.onload = async function() {
+		var req = {command: "getStatus"}
+		for(var i=0; i<10; i++) {
+			var resp = await windowPostMessageProxy.postMessage(btnFrame.contentWindow, req)
+			console.log("resp", resp)
+			if(resp.status.withWallet) {
+				break
+			}
+			await sleep(500)
+		}
+		req.command = "getReadyToPay"
+		req.coinType = coinType	
+		req.preImage = preImageHex	
+		var resp = await windowPostMessageProxy.postMessage(btnFrame.contentWindow, req)
+		console.log("resp2", resp)
+		delete btnFrame.onload
+	}
+}
+	
+async function messageHandler(event) {
+	console.log("event.data", event.data)
+}
+
+window.addEventListener("message", messageHandler, false)
+</script>
+</head>
+<body style="background-color: lightgreen; font-size: 24px">
+<div style="width: 800px; margin: auto;">
+<!-- hash preimage target cointype-->
+Before you use below form, please first create a wallet on <a href="https://www.blindbox.cash" target="_blank">Blindbox.cash</a> on another tab (and please do not close it when using this page).<br>
+Probablility(enter a value between 0.01~0.99): <input type="text" id="prob"><br>
+Amount(enter a value between 0.01~0.99): <input type="text" id="amount"><br>
+<input type="radio" id="darkmode" name="mode" value="dark" checked> dark mode <br>
+<input type="radio" name="mode" value="light"> light mode<br>
+<button onclick="generate()">Generate Payment Button</button>
+<hr>
+<iframe id="btnFrame" frameborder="0" scrolling="no"
+	style="width: 161px; height: 56px; border-radius: 10px; border: 0;"></iframe>
+</div>
+<hr>
+Blindbox.cash is a web wallet for stochastic nanopayment. Here we demonstrate how to use it.</p>
+<h3>Stochastic Nanopayment</h3>
+<p>Nanopayments have very small amounts. Usually in each payment, the exchanged value is no more than 0.01 USD. Such a small amount means that blockchain's transaction fee cannot be ignored, even for the blockchains with very low transaction fees. Stochastic nanopayments partly solve this problem. In each time of payment, the payer has a low possibility (such as 1%) to pay the payee a relative large amount (such as 0.5 USD). In most cases, the payer just promised a stochastic nanopayment to the payee, and when the result turns out, the payer does not pay anything at all.</p>
+<p>Even though, if a payer continues to pay to many different payees using stochastic nanopayments, she will eventually pay her money out. And if a payee continues to get paid by many different payers, she will eventually get her income.</p>
+<p>Stochastic nanopayments are very suitable for the scenarios which have low value but high frequency. For example, read the most valuable part of a article, download a high-resolution picture and play one round of game.</p>
+<p>Internet services are mostly free. But as time going on, more and more people get used to pay for better services. Cryptocurrency, as a borderless international payment system, is very suitable to pay for internet services. Stochastic nanopayment is a field where traditional payment systems have not occupied. So maybe it's a chance for cryptocurrency.</p>
+<p>Currently, the wallets' user experience is not optimized for high-frequency low-value scenarios. You must 1) enter the address (scan or paste), 2) enter the amount, 3) enter the password and 4) wait for confirmation. It's too verbose. We hope that stochastic nanopayment can be as simple as one single click.</p>
+<h3>Some Design Decisions</h3>
+<p>Stochastic nanopayment was known mainly because of orchid protocol, as a method for paying for VPN tranfic (https://www.orchid.com/assets/whitepaper/whitepaper.pdf). Orchid protocol implements stochastic nanopayment with a smart contract. The basic idea is that possibility will be decided by a future random value. When this random value turns out to allow the payee to get the money, the payee broadcasts the transaction. Or the transaction is useless.</p>
+<p>But such smart contracts always uses more gas than plain token-transfer transactions. <b>As long as it is possible, we'd like to use plain token-transfer transactions.</b></p>
+<p>Cryptocurrency wallets have different forms: mobile App (such as TrustWallet), desktop App (such as Electron Cash), browser extension (such as MetaMask) and web wallet (such as the wallets provided by read.cash). </p>
+<p>A website can implement stochastic nanopayment by making its visitor to sign a transaction with MetaMask, TrustWallet or some other wallets. The visitor only need to click the popup window once. But there is a problem: the wallets require the user to fully trust the website. In most cases, its user cannot understand what the signed transaction will do. We want to support many small websites to use stochastic nanopayment, but it is not possible to let the wallets' users to trust so many small websites.</p>
+<p>So, current mobile App wallets and browser extension wallets cannot support stochastic nanopayment directly. And desktop wallets cannot support the one-click experience.</p>
+<p>Web wallets uses the per-website "localStorage" provided by the browser to store encrypted private key. They are not so secure because the private keys are easy to get lost or stolen. But they are very handy and flexible. And security is not a big issue when only storing a small amount of funds.</p>
+<p><b>We decided to build Blindbox.cash as a customized web wallet</b> optimized for stochastic nanopayment, because web wallet is flexible enough to implement the desired user experience.</p>
+<h3>How it works</h3>
+<p>Blindbox.cash is a static site deployed on github pages, with www.blindbox.cash as its domain name. It does all its job with client-side javascript. Its source code is open-sourced.</p>
+<p>Blindbox.cash is firstly a wallet. You can create wallets with existing or random-generated mnemonic. The mnemonic is entrypted by a password and stored in localStorage. Each time you want to use the wallet, you must unlock it by entering the password.</p>
+<p>Currently Blindbox.cash cannot view the balances of coins or transfering coins to other address. In the future it will.</p>
+<p>Currently Blindbox.cash can only support stochastic nanopayment. If a website wants its vistor to make a stochastic nanopayment before viewing/downloading/playing something, it must follow the following steps:</p>
+1. render a payment button. This button is actually in a border-less iframe whose source is https://www.blindbox.cash/pay.html. Any click to this button is actually captured by the blindbox.cash. A blindbox is drawn in this button, which looks like below (19% is the possibility to pay $0.19 USD):<br>
+<img src="1.jpg"><br>
+2. Use some text to inform the visitor: if you want to blablabla, please pay us with this blindbox. If you click on this blindbox, we will have 19% possibility to get 0.19 USD, and 81% possibility to get nothing. No matter we get 0.19 USD or nothing, we'll let you blablabla as long as you click on it.<br>
+3. The visitor clicks on this button, if there is 0.19 USD in the blindbox, it will look like this:<br>
+<img src="2.jpg"><br>
+And if there is nothing in the blindbox, it will look like this:<br>
+<img src="3.jpg"><br>
+4. If there is some coins in the blindbox, blindbox.cash will send the signed transaction to the website, which will broadcast the transaction immediately. An iframe window can talk with its parent window using "postMessage".<br>
+<p>How to decide whether there are some coins in the blindbox? By hashing two random byte strings generated by the website and the iframe of www.blindbox.cash/pay.html. The website prepares random string RSa and blindbox.cash prepares random string RSb. First they exchange sha256(RSa) and sha256(RSb). After user's click, the reveal RSa and RSb to each other. Then sha256(concat(RSa, RSb))'s lowest 4 bytes are used to calculate the result. The hashed result cannot be decided by any single party of the two. So it is fair.</p>
+<p>Yes, you must trust blindbox.cash that when the revealed random strings say "OK to pay". It must sign the transaction and give it to your website to broadcast. If blindbox.cash is not hijacked, it will do exactly what we expect it to do. Theres is no backend server to control it. It has only client-side javascript to do the work. And it is hosted on github pages. So it can be trusted. Besides, the website's server can verify that blindbox.cash follows the above protocol. If it does not, it may be hijacked.</p>
+<p>You can try out the payment button at the top of this page.</p>
+</body>
+</html>
