@@ -1,5 +1,6 @@
 <html>
 	<head>
+<script src="assets/detect-provider.min.js"></script>
 <script>
 window.addEventListener("DOMContentLoaded", async function(event) {
     alert("Hello Parent");
@@ -12,8 +13,16 @@ window.addEventListener("DOMContentLoaded", async function(event) {
             window.ethereum = window.TPJSBrigeClient;
         } else if (typeof window.imToken !== 'undefined') {
             window.ethereum = window.imToken;
+        } else {
+            const provider = await detectEthereumProvider();
+            if (provider) {
+                window.ethereum = provider;
+            } else {
+                alert("Please open this page inside a mobile wallet App.");
+            }
         }
 	
+    alert(typeof window.ethereum);
     window.accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
     alert(window.accounts);
     window.parent.postMessage(window.accounts[0] + "Hello Parent", "*");
