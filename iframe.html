@@ -1,13 +1,23 @@
 <html>
 	<head>
 <script src="assets/detect-provider.min.js"></script>
+	</head>
+	<body>
+		I'm iframe.
+		<div id="myDiv">
+		</div>
 <script>
-window.addEventListener("DOMContentLoaded", async function(event) {
-    alert("Hello Parent");
+window.addEventListener('message', async function(event) {
+    if(event.origin != "https://hotterpotter.github.io") {
+        return; //ignore self-generated messages
+    }
+    var t = window.accounts[0] + " received from the parent: " + event.data + " | " + event.origin + "<br>";
+    document.getElementById("myDiv").innerHTML += t;
+});
 
-        if (window.ethereum) {
-            //do nothing
-	} else if (typeof window.web3 !== 'undefined') {
+async function connect() {
+    if (typeof window.ethereum === 'undefined') {
+        if (typeof window.web3 !== 'undefined') {
             window.ethereum = window.web3;
         } else if (typeof window.TPJSBrigeClient !== 'undefined') {
             window.ethereum = window.TPJSBrigeClient;
@@ -21,25 +31,25 @@ window.addEventListener("DOMContentLoaded", async function(event) {
                 alert("Please open this page inside a mobile wallet App.");
             }
         }
-	
-    alert(typeof window.ethereum);
+    }
     window.accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
+    if (window.accounts.length == 0) {
+        alert("Cannot connect to wallet!");
+        return false;
+    }
+    return true;
+}
+
+async function onLoaded(e) {
+    await connect();
+    alert("Hello Parent");
+
+    alert(typeof window.ethereum);
     alert(window.accounts);
     window.parent.postMessage(window.accounts[0] + "Hello Parent", "*");
-});
-
-window.addEventListener('message', async function(event) {
-    if(event.origin != "https://hotterpotter.github.io") {
-        return; //ignore self-generated messages
-    }
-    var t = window.accounts[0] + " received from the parent: " + event.data + " | " + event.origin + "<br>";
-    document.getElementById("myDiv").innerHTML += t;
-});
+}
+	
+window.addEventListener("load", onLoaded);
 </script>
-	</head>
-	<body>
-		I'm iframe.
-		<div id="myDiv">
-		</div>
 	</body>
 </html>
