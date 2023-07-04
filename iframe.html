@@ -2,7 +2,7 @@
 	<head>
 <script>
 window.addEventListener("DOMContentLoaded", async function(event) {
-    console.log("Hello Parent");
+    alert("Hello Parent");
 
         if (window.ethereum) {
             //do nothing
@@ -15,7 +15,7 @@ window.addEventListener("DOMContentLoaded", async function(event) {
         }
 	
     window.accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
-    console.log(window.accounts);
+    alert(window.accounts);
     window.parent.postMessage(window.accounts[0] + "Hello Parent", "*");
 });
 
