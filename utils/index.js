@@ -6,7 +6,6 @@ const bchaddr = require('bchaddrjs');
 const wif = require('wif');
 const Buffer_1 = require("Buffer");
 const algo_msgpack_with_bigint_1 = require("algo-msgpack-with-bigint");
-const base64url_1 = require("base64url");
 function hexToWif(hexStr, network) {
     var privateKey = new Buffer_1.Buffer(hexStr, 'hex');
     if (network == libauth_1.CashAddressNetworkPrefix.mainnet) {
@@ -106,13 +105,11 @@ function signUnsignedTransaction(decoded, sourceOutputs, signingKey) {
 }
 exports.signUnsignedTransaction = signUnsignedTransaction;
 function pack(tx) {
-    const hex = Buffer_1.Buffer.from((0, algo_msgpack_with_bigint_1.encode)(tx)).toString("hex");
-    return base64url_1.default.encode(hex);
+    return base64EncodeURL((0, algo_msgpack_with_bigint_1.encode)(tx));
 }
 exports.pack = pack;
 function unPack(tx) {
-    const hex = base64url_1.default.decode(tx);
-    const result = (0, algo_msgpack_with_bigint_1.decode)(Buffer_1.Buffer.from(hex, "hex"));
+    const result = (0, algo_msgpack_with_bigint_1.decode)(base64DecodeURL(tx));
     return JSON.parse(JSON.stringify(result), function (key, value) {
         if (value && value.type === "Buffer") {
             return new Uint8Array(value.data);
@@ -127,3 +124,13 @@ function unPack(tx) {
     });
 }
 exports.unPack = unPack;
+function base64EncodeURL(byteArray) {
+    return btoa(Array.from(new Uint8Array(byteArray)).map(val => {
+        return String.fromCharCode(val);
+    }).join('')).replace(/\+/g, '-').replace(/\//g, '_').replace(/\=/g, '');
+}
+function base64DecodeURL(b64urlstring) {
+    return new Uint8Array(atob(b64urlstring.replace(/-/g, '+').replace(/_/g, '/')).split('').map(val => {
+        return val.charCodeAt(0);
+    }));
+}
