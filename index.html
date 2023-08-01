@@ -12,7 +12,10 @@
 <script>
     document.addEventListener("DOMContentLoaded", async (event) => {
       globalThis.exports = globalThis.exports || {};
-      Object.assign(globalThis, await __mainnetPromise);
+      const mainnet =  await __mainnetPromise
+      for (const key of ["Wallet","TestNetWallet"]) {
+        globalThis[key] = mainnet[key]
+      }
     });
   </script>
 <script type="module">
