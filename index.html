@@ -13,7 +13,7 @@
     document.addEventListener("DOMContentLoaded", async (event) => {
       globalThis.exports = globalThis.exports || {};
       const mainnet =  await __mainnetPromise
-      for (const key of ["Wallet","TestNetWallet"]) {
+      for (const key of ["Wallet","TestNetWallet","hexToBin"]) {
         globalThis[key] = mainnet[key]
       }
     });
