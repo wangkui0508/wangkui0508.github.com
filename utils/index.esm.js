@@ -38321,8 +38321,18 @@ var pack_1 = utils.pack = pack;
 function unPack(tx) {
   var result = (0, algo_msgpack_with_bigint_1.decode)(base64DecodeURL(tx));
   return JSON.parse(JSON.stringify(result), function (key, value) {
-    if (value && value.type === "Buffer") {
-      return new Uint8Array(value.data);
+    if (!!value && _typeof(value) === "object") {
+      var keys = Object.keys(value);
+      var values = Object.values(value);
+      var b = keys.every(function (v) {
+        return typeof Number(v) === "number";
+      }) && values.every(function (v) {
+        return typeof v === "number";
+      });
+      if (!b) {
+        return value;
+      }
+      return new Uint8Array(values);
     }
     if (["token", "nft"].includes(key) && value === null) {
       return undefined;

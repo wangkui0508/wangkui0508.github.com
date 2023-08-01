@@ -111,8 +111,14 @@ exports.pack = pack;
 function unPack(tx) {
     const result = (0, algo_msgpack_with_bigint_1.decode)(base64DecodeURL(tx));
     return JSON.parse(JSON.stringify(result), function (key, value) {
-        if (value && value.type === "Buffer") {
-            return new Uint8Array(value.data);
+        if (!!value && typeof value === "object") {
+            const keys = Object.keys(value);
+            const values = Object.values(value);
+            const b = keys.every((v) => typeof Number(v) === "number") && values.every((v) => typeof v === "number");
+            if (!b) {
+                return value;
+            }
+            return new Uint8Array(values);
         }
         if (["token", "nft"].includes(key) && value === null) {
             return undefined;
