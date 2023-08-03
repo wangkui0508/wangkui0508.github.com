@@ -1,4 +1,5 @@
 import { CashAddressNetworkPrefix, WalletImportFormatType, CashAddressType, TransactionCommon } from '@bitauth/libauth';
+import { LibauthOutput } from 'cashscript/dist/interfaces.js';
 export declare function hexToWif(hexStr: string, network: CashAddressNetworkPrefix): any;
 export declare function cashAddrToLegacy(cashAddr: string): string;
 export interface PrivateKeyI {
@@ -23,6 +24,7 @@ export interface SourceOutput {
     };
 }
 export declare function extractOutputs(tx: TransactionCommon, network: "bitcoincash" | "bchtest" | "bchreg"): SourceOutput[];
+export declare function signTransactionForUTXO(decoded: TransactionCommon, sourceOutputs: LibauthOutput[], i: number, signingKey: Uint8Array): Uint8Array[];
 export declare function signUnsignedTransaction(decoded: TransactionCommon, sourceOutputs: SourceOutput[], signingKey: Uint8Array): Uint8Array;
 export declare function pack(tx: any): string;
 export declare function unPack(tx: string): any;

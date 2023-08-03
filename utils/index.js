@@ -1,7 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unPack = exports.pack = exports.signUnsignedTransaction = exports.extractOutputs = exports.deriveCashaddr = exports.wifToPrivateKey = exports.textToUtf8Hex = exports.hexSecretToHexPrivkey = exports.uint8ArrayToHex = exports.cashAddrToLegacy = exports.hexToWif = void 0;
+exports.unPack = exports.pack = exports.signUnsignedTransaction = exports.signTransactionForUTXO = exports.extractOutputs = exports.deriveCashaddr = exports.wifToPrivateKey = exports.textToUtf8Hex = exports.hexSecretToHexPrivkey = exports.uint8ArrayToHex = exports.cashAddrToLegacy = exports.hexToWif = void 0;
 const libauth_1 = require("@bitauth/libauth");
+const utils_1 = require("@cashscript/utils");
+const utils_js_1 = require("cashscript/dist/utils.js");
+const cashscript_1 = require("cashscript");
 const bchaddr = require('bchaddrjs');
 const wif = require('wif');
 const Buffer_1 = require("Buffer");
@@ -75,6 +78,17 @@ function extractOutputs(tx, network) {
     return outputs;
 }
 exports.extractOutputs = extractOutputs;
+function signTransactionForUTXO(decoded, sourceOutputs, i, signingKey) {
+    const template = new cashscript_1.SignatureTemplate(signingKey);
+    const pubkey = template.getPublicKey();
+    const prevOutScript = (0, utils_js_1.publicKeyToP2PKHLockingBytecode)(pubkey);
+    const hashtype = template.getHashType();
+    const preimage = (0, utils_js_1.createSighashPreimage)(decoded, sourceOutputs, i, prevOutScript, hashtype);
+    const sighash = (0, utils_1.hash256)(preimage);
+    const signature = template.generateSignature(sighash);
+    return [pubkey, signature];
+}
+exports.signTransactionForUTXO = signTransactionForUTXO;
 function signUnsignedTransaction(decoded, sourceOutputs, signingKey) {
     const template = (0, libauth_1.importAuthenticationTemplate)(libauth_1.authenticationTemplateP2pkhNonHd);
     if (typeof template === "string") {
