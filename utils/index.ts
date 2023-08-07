@@ -4,7 +4,7 @@ import {CashAddressNetworkPrefix, encodeCashAddress, WalletImportFormatType, Cas
 	authenticationTemplateP2pkhNonHd, authenticationTemplateToCompilerBCH,
 	generateTransaction, encodeTransaction, lockingBytecodeToCashAddress} from '@bitauth/libauth';
 import { hash256 } from '@cashscript/utils';
-import { publicKeyToP2PKHLockingBytecode, createSighashPreimage } from 'cashscript/dist/utils.js';
+import { createSighashPreimage } from 'cashscript/dist/utils.js';
 import { LibauthOutput } from 'cashscript/dist/interfaces.js';
 import { SignatureTemplate } from 'cashscript';
 
@@ -107,19 +107,18 @@ export function extractOutputs(
   return outputs;
 }
 
-export function signTransactionForUTXO(
+export function signTransactionForArg(
   decoded: TransactionCommon,
   sourceOutputs: LibauthOutput[],
   i: number,
+  bytecode: Uint8Array,
   signingKey: Uint8Array
 ): Uint8Array[] {
   const template = new SignatureTemplate(signingKey);
-
   const pubkey = template.getPublicKey();
-  const prevOutScript = publicKeyToP2PKHLockingBytecode(pubkey);
   
   const hashtype = template.getHashType();
-  const preimage = createSighashPreimage(decoded, sourceOutputs, i, prevOutScript, hashtype);
+  const preimage = createSighashPreimage(decoded, sourceOutputs, i, bytecode, hashtype);
   const sighash = hash256(preimage);
   
   const signature = template.generateSignature(sighash);
