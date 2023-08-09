@@ -6,7 +6,7 @@ import {CashAddressNetworkPrefix, encodeCashAddress, WalletImportFormatType, Cas
 import { hash256 } from '@cashscript/utils';
 import { createSighashPreimage } from 'cashscript/dist/utils.js';
 import { LibauthOutput } from 'cashscript/dist/interfaces.js';
-import { SignatureTemplate } from 'cashscript';
+const SignatureTemplate = require('cashscript/dist/SignatureTemplate');
 
 const bchaddr =require('bchaddrjs') ;
 const wif = require('wif')

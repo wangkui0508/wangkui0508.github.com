@@ -4,7 +4,7 @@ exports.unPack = exports.pack = exports.signUnsignedTransaction = exports.signTr
 const libauth_1 = require("@bitauth/libauth");
 const utils_1 = require("@cashscript/utils");
 const utils_js_1 = require("cashscript/dist/utils.js");
-const cashscript_1 = require("cashscript");
+const SignatureTemplate = require('cashscript/dist/SignatureTemplate');
 const bchaddr = require('bchaddrjs');
 const wif = require('wif');
 const Buffer_1 = require("Buffer");
@@ -79,7 +79,7 @@ function extractOutputs(tx, network) {
 }
 exports.extractOutputs = extractOutputs;
 function signTransactionForArg(decoded, sourceOutputs, i, bytecode, signingKey) {
-    const template = new cashscript_1.SignatureTemplate(signingKey);
+    const template = new SignatureTemplate(signingKey);
     const pubkey = template.getPublicKey();
     const hashtype = template.getHashType();
     const preimage = (0, utils_js_1.createSighashPreimage)(decoded, sourceOutputs, i, bytecode, hashtype);
