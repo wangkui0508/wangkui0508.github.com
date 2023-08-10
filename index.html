@@ -561,7 +561,7 @@ async function handleBroadcastTx() {
             return ('0' + (byte & 0xff).toString(16)).slice(-2);
         }).join('');
         };
-        await _Wallet.submitTransaction(hexToBin(toHexString(signedTx)))
+        await wallet.submitTransaction(hexToBin(toHexString(signedTx)))
         myAlert("Transaction broadcast success")   
     } catch (error) {
         myAlert("error: " + (error.message || error))   
