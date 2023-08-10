@@ -80,12 +80,11 @@ function extractOutputs(tx, network) {
 exports.extractOutputs = extractOutputs;
 function signTransactionForArg(decoded, sourceOutputs, i, bytecode, signingKey) {
     const template = new SignatureTemplate(signingKey);
-    const pubkey = template.getPublicKey();
     const hashtype = template.getHashType();
     const preimage = (0, utils_js_1.createSighashPreimage)(decoded, sourceOutputs, i, bytecode, hashtype);
     const sighash = (0, utils_1.hash256)(preimage);
     const signature = template.generateSignature(sighash);
-    return [pubkey, signature];
+    return signature;
 }
 exports.signTransactionForArg = signTransactionForArg;
 function signUnsignedTransaction(decoded, sourceOutputs, signingKey) {

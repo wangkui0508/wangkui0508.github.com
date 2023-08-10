@@ -40043,12 +40043,11 @@ function extractOutputs(tx, network) {
 var extractOutputs_1 = utils$b.extractOutputs = extractOutputs;
 function signTransactionForArg(decoded, sourceOutputs, i, bytecode, signingKey) {
   var template = new SignatureTemplate(signingKey);
-  var pubkey = template.getPublicKey();
   var hashtype = template.getHashType();
   var preimage = (0, utils_js_1.createSighashPreimage)(decoded, sourceOutputs, i, bytecode, hashtype);
   var sighash = (0, utils_1.hash256)(preimage);
   var signature = template.generateSignature(sighash);
-  return [pubkey, signature];
+  return signature;
 }
 var signTransactionForArg_1 = utils$b.signTransactionForArg = signTransactionForArg;
 function signUnsignedTransaction(decoded, sourceOutputs, signingKey) {
