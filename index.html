@@ -121,24 +121,6 @@ IS WITH YOU.</p>
     <p id="outputs"></p>
 </div>
 
-<div id="withSignForArg" style="padding: 10px; display: none">
-    <div class="columns">
-      <div class="column">
-        <button class="button is-danger" onclick="refuse()">Refuse</button><br>
-      </div>
-      <div class="column">
-        <button class="button is-success" onclick="signForArg()">Sign It!</button><br><br>
-      </div>
-    </div>
-    <p><b>Signing Request From:</b><br> <span id="origin"></span></p>
-    <p><b>Current Account:</b><br> <span id="currAccount"></span></p>
-    <p><b>Miner Fee:</b> <span id="minerFee"></span>satoshi</p>
-    <p><b>INPUTS:</b></p>
-    <p id="inputs"></p>
-    <p><b>OUTPUTS:</b></p>
-    <p id="outputs"></p>
-</div>
-
 <div id="withGenerateUrl" style="padding: 10px; display: none">
     <p><b>URL:</b><br> <a id="generatedUrl" onclick="copyText(event.target.text);myAlert('Copy successfully and please open it with chrome');">1321</a></p>
     <td><canvas id="generatedUrlQR"></canvas></td></tr>
@@ -406,24 +388,7 @@ async function initPage() {
     }
     const params = new URL(window.location.href).searchParams;
     const reqID = params.get('req');
-    if(params.get('signTransactionForArg') && reqID) {
-        const origin = decodeURI(params.get('origin'));
-        document.getElementById("origin").innerText = origin;
-
-        //console.log("TxReqIDChannel.postMessage", reqID);
-        TxReqIDChannel.postMessage(reqID);
-        TxReqChannel.onmessage = async function(evt) {
-            //console.log("TxReqChannel.onmessage", evt.data);
-            //console.log(evt.data.ReqID, reqID, evt.data.Tx.origin, origin);
-            if(evt.data.ReqID == reqID && evt.data.Tx.origin == origin) {
-                window.Tx = evt.data.Tx;
-                //console.log("TX", window.Tx.transaction);
-                let outputs = utils.extractOutputs(Tx.transaction, window.NETWORK);
-                fillTxReq(Tx.transaction.inputs, Tx.sourceOutputs, outputs);
-                document.getElementById("withSignForArg").style.display = "block";
-            }
-        }
-    } else if(reqID) {
+    if(reqID) {
         const origin = decodeURI(params.get('origin'));
         document.getElementById("origin").innerText = origin;
 
@@ -519,25 +484,19 @@ async function refuse() {
     window.close();
 }
 
-async function signForArg() {
-    const params = new URL(window.location.href).searchParams;
-    const reqID = params.get('req');
-    const tx = window.Tx;
-    if(!tx) return;
-    const privKeyArr = utils.wifToPrivateKey(window.WIF);
-    const {transaction, sourceOutputs, inputIndex, bytecode} = tx;
-    var signedTx = await utils.signTransactionForArg(transaction, sourceOutputs, inputIndex, bytecode,privKeyArr);
-    TxRespChannel.postMessage({ReqID: reqID, Result: {signedTx: signedTx, origin: tx.origin}});
-    window.close();
-}
-
 async function signTx() {
     const params = new URL(window.location.href).searchParams;
     const reqID = params.get('req');
     const tx = window.Tx;
     if(!tx) return;
     const privKeyArr = utils.wifToPrivateKey(window.WIF);
-    var signedTx = await utils.signUnsignedTransaction(tx.transaction, tx.sourceOutputs, privKeyArr);
+    let signedTx
+    if(params.get('signTransactionForArg')){
+        const {transaction, sourceOutputs, inputIndex, bytecode} = tx;
+        signedTx = await utils.signTransactionForArg(transaction, sourceOutputs, inputIndex, bytecode,privKeyArr);
+    }else {
+        signedTx = await utils.signUnsignedTransaction(tx.transaction, tx.sourceOutputs, privKeyArr);
+    }
     // var signedTx = tx;
     //console.log("TxRespChannel.postMessage", {ReqID: reqID, Result: {signedTx: signedTx, origin: tx.origin}});
     TxRespChannel.postMessage({ReqID: reqID, Result: {signedTx: signedTx, origin: tx.origin}});
