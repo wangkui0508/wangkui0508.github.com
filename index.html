@@ -511,9 +511,9 @@ async function handleBroadcastTx() {
     const cashAddr = utils.deriveCashaddr(privKeyArr, window.NETWORK, "p2pkh");
     let wallet
     if (window.NETWORK === "bchtest") {
-        wallet = await TestNetWallet.fromCashaddr(cashAddr)
+        wallet = await TestNetWallet.watchOnly(cashAddr)
     } else {
-        wallet =await Wallet.fromCashaddr(cashAddr)
+        wallet =await Wallet.watchOnly(cashAddr)
     }
     try {
         const toHexString = (bytes) => {
