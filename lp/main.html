@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mainchain LP Frontend</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  </head>
+  <body>
+  <section class="section">
+    <h1 class="title">Mainchain LP Frontend</h1>
+    <div class="tabs">
+      <ul>
+        <li id="tabTraderOps" class="is-active"><a>Trader Ops</a></li>
+        <li id="tabOwnerOps"><a>Owner Ops</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="secTraderOps" class="section">
+        <div class="control">
+          <button class="button is-link" id="connectBtn">Connect</button>
+        </div>
+	<hr/>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Basic Information</p>
+      <div class="box">     
+        <pre id="info">
+        </pre>
+        <div class="control">
+          <button class="button is-link" id="getInfoBtn">Get Info</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Token Information</p>
+      <div class="box">     
+        <div class="field">
+          <label class="label">Token Address</label>
+          <input class="input" type="text" id="tokenAddr">
+        </div> 
+        <pre id="tokenInfo">
+        </pre>
+        <div class="control">
+          <button class="button is-link" id="getTokenInfoBtn">Get Token Info</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Swap To STBT</p>
+      <div class="box">     
+        <div class="field">
+          <label class="label">Swap From Token</label>
+          <input class="input" type="text" id="swapFromToken">
+        </div> 
+        <div class="field">
+          <label class="label">In Amount</label>
+          <input class="input" type="text" id="fromTokenAmount">
+        </div> 
+        <div class="field">
+          <label class="label">Minimum Mount Amount</label>
+          <input class="input" type="text" id="minAmountOut">
+        </div> 
+        <div class="control">
+          <button class="button is-link" id="swapToSTBTBtn">Submit</button>
+        </div>
+        <div class="control">
+          <button class="button is-link" id="getSwapToSTBTAmountOutBtn">getSwapToSTBTAmountOut</button>
+        </div>
+        <pre id="STBTAmountOut">
+        </pre>
+      </div>
+    </div>
+
+  </section>
+
+  <section id="secOwnerOps" class="section is-hidden">
+    <div class="panel is-link">
+      <p class="panel-heading">Pause Token</p>
+      <div class="box">     
+        <div class="field">
+          <label class="label">Token Address</label>
+          <input class="input" type="text" id="pausedTokenAddr">
+        </div> 
+        <div class="control">
+          <button class="button is-link" id="pauseTokenBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Set Reward BPS</p>
+      <div class="box">     
+        <div class="field">
+          <label class="label">Token Address</label>
+          <input class="input" type="text" id="rewardTokenAddr">
+        </div> 
+        <div class="field">
+          <label class="label">BPS</label>
+          <input class="input" type="number" id="rewardBPS">
+        </div> 
+        <div class="control">
+          <button class="button is-link" id="setRewardBpsBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Set LP</p>
+      <div class="box">     
+        <div class="field">
+          <label class="label">LP Address</label>
+          <input class="input" type="text" id="lpAddr">
+        </div> 
+        <div class="control">
+          <button class="button is-link" id="setLpBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Add No Fee Coin</p>
+      <div class="box">     
+        <div class="field">
+          <label class="label">No Fee Coin Address</label>
+          <input class="input" type="text" id="noFeeCoinAddr">
+        </div> 
+        <div class="field">
+          <label class="label">End Of Service</label>
+          <input class="input" type="text" id="endOfService">
+        </div> 
+        <div class="field">
+          <label class="label">Balance Cap</label>
+          <input class="input" type="text" id="balanceCap">
+        </div> 
+        <div class="control">
+          <button class="button is-link" id="addNoFeeCoinBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Remove No Fee Coin</p>
+      <div class="box">     
+        <div class="field">
+          <label class="label">Coin Address</label>
+          <input class="input" type="text" id="removeNoFeeCoinAddr">
+        </div> 
+        <div class="control">
+          <button class="button is-link" id="removeNoFeeCoinBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Set Global Pause</p>
+      <div class="box">     
+        <div class="field">
+          <label class="label">true of false?</label>
+          <input class="input" type="text" id="pauseBool">
+        </div> 
+        <div class="control">
+          <button class="button is-link" id="setPausedBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Withdraw Token</p>
+      <div class="box">     
+        <div class="field">
+          <label class="label">Token Address</label>
+          <input class="input" type="text" id="withdrawTokenAddr">
+        </div> 
+        <div class="field">
+          <label class="label">Amount</label>
+          <input class="input" type="text" id="withdrawAmount">
+        </div> 
+        <div class="control">
+          <button class="button is-link" id="withdrawTokenBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Deposit STBT</p>
+      <div class="box">     
+        <div class="field">
+          <label class="label">Amount</label>
+          <input class="input" type="text" id="depositAmount">
+        </div> 
+        <div class="control">
+          <button class="button is-link" id="depositSTBTBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Set Pauser</p>
+      <div class="box">     
+        <div class="field">
+          <label class="label">Pauser Address</label>
+          <input class="input" type="text" id="pauserAddr">
+        </div> 
+        <div class="control">
+          <button class="button is-link" id="setPauserBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+  <script type="module">
+import { ethers } from "./ethers-5.4.esm.min.js";
+import u from './umbrella-3.3.0.esm.js';
+import { toast } from './bulma-toast.esm.js';
+
+
+const erc20ABI = [
+"function name() public view returns (string)",
+"function symbol() public view returns (string)",
+"function decimals() public view returns (uint8)",
+"function totalSupply() public view returns (uint256)",
+"function balanceOf(address _owner) public view returns (uint256 balance)",
+"function transfer(address _to, uint256 _value) public returns (bool success)",
+"function transferFrom(address _from, address _to, uint256 _value) public returns (bool success)",
+"function approve(address _spender, uint256 _value) public returns (bool success)",
+"function allowance(address _owner, address _spender) public view returns (uint256 remaining)"
+]
+
+const lpContractAddr = '0x04458f712359fA6Aa2dB3b0d4f49C7b92794DD48'; //EthereumLP
+const lpABI = [
+"function stbt() external view returns (address)",
+"function stbtMinter() external view returns (address)",
+"function usdvMinterProxy() external view returns (address)",
+"function dssPsm() external view returns (address)",
+"function curve3pool() external view returns (address)",
+"function dai() external view returns (address)",
+"function usdc() external view returns (address)",
+"function usdt() external view returns (address)",
+"function lp() external view returns (address)",
+"function pauser() external view returns (address)",
+"function owner() external view returns (address)",
+
+"function rewardBpsMap(address token) external view returns (uint16)",
+"function noFeeCoinMap(address token) external view returns (uint64 mul, uint64 endOfService, uint96 balanceCap)",
+"function pausedTokens(address token) external view returns (bool)",
+
+"function getSupportedTokens() external view returns (address[] memory tokens)",
+
+"function pauseToken(address _token, bool _flag) external",
+
+"function setRewardBps(address _token, uint16 _rewardBps) external",
+
+"function setLp(address _lp)",
+
+"function addNoFeeCoin(address _token, uint64 _endOfService, uint96 _balanceCap) external",
+
+"function removeNoFeeCoin(address _token) external",
+
+"function setPaused(bool _p) external",
+
+"function withdrawToken(address _token, uint _amount) external",
+
+"function depositSTBT(uint _amount) external",
+
+"function setPauser(address _pauser) external",
+
+"function swapToSTBT(address _fromToken, uint256 _fromTokenAmount, uint256 _minAmountOut) external returns (uint requestedOut, uint rewardOut)",
+
+"function getSwapToSTBTAmountOut(address _fromToken, uint _fromTokenAmount) external view returns (uint requestedOut, uint rewardOut)"
+];
+
+var provider;
+var signer;
+var myAddr;
+var lp;
+
+u('#connectBtn').handle('click', async (e) => {
+  console.log(window.ethereum)
+  provider = new ethers.providers.Web3Provider(window.ethereum)
+  
+  await provider.send("eth_requestAccounts", []);
+  
+  signer = provider.getSigner();
+  myAddr = await signer.getAddress();
+  console.log('myAddr:', myAddr);
+  lp = new ethers.Contract(lpContractAddr, lpABI, provider);
+});
+
+u('#tabTraderOps').handle('click', async (e) => {
+  u('#tabTraderOps').addClass('is-active');
+  u('#tabOwnerOps').removeClass('is-active');
+  u('#secTraderOps').removeClass('is-hidden');
+  u('#secOwnerOps').addClass('is-hidden');
+});
+u('#tabOwnerOps').handle('click', async (e) => {
+  u('#tabOwnerOps').addClass('is-active');
+  u('#tabTraderOps').removeClass('is-active');
+  u('#secOwnerOps').removeClass('is-hidden');
+  u('#secTraderOps').addClass('is-hidden');
+});
+
+u('#getInfoBtn').handle('click', async (e) => {
+  var result = ""
+  console.log("lp:", lp);
+  console.log(u('#info'));
+  console.log(u('#info').first());
+  const impl = await provider.getStorageAt(lpContractAddr, "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc");
+  result += "Implementation Address:" + impl + "\n";
+  const stbt = await lp.stbt(); 
+  result += "STBT Address:" + stbt + "\n";
+  const stbtMinter = await lp.stbtMinter(); 
+  result += "STBT Minter Address:" + stbtMinter + "\n";
+  const usdvMinterProxy = await lp.usdvMinterProxy(); 
+  result += "USDV Minter Proxy Address:" + usdvMinterProxy + "\n";
+  const dssPsm = await lp.dssPsm(); 
+  result += "DSSPSM Address:" + dssPsm + "\n";
+  const curve3pool = await lp.curve3pool(); 
+  result += "CURVE 3Pool Address:" + curve3pool + "\n";
+  const dai = await lp.dai(); 
+  result += "DAI Address:" + dai + "\n";
+  const usdc = await lp.usdc(); 
+  result += "USDC Address:" + usdc + "\n";
+  const usdt = await lp.usdt(); 
+  result += "USDT Address:" + usdt + "\n";
+  const lpEOA = await lp.lp(); 
+  result += "LP Address:" + lpEOA + "\n";
+  const pauser = await lp.pauser(); 
+  result += "Pauser Address:" + pauser + "\n";
+  const owner = await lp.owner(); 
+  result += "Owner Address:" + owner + "\n";
+  const supportedTokens = await lp.getSupportedTokens(); 
+  result += "Supported Address:" + supportedTokens + "\n";
+
+  for(const token of supportedTokens) {
+    const erc20 = new ethers.Contract(token, erc20ABI, provider);
+    const balance = await erc20.balanceOf(lpContractAddr)
+    const symbol = await erc20.symbol()
+    result += "balance of " + symbol + " " + token + " : " + balance + "\n";
+  }
+  const erc20 = new ethers.Contract(stbt, erc20ABI, provider);
+  const balance = await erc20.balanceOf(lpContractAddr)
+  result += "balance of STBT : " + balance + "\n";
+
+  console.log(result);
+  u('#info').text(result);
+});
+
+u('#getTokenInfoBtn').handle('click', async (e) => {
+  var result = ""
+  const addr = u('#tokenAddr').first().value
+  const rewardBps = await lp.rewardBpsMap(addr); 
+  result += "Reward BPS:" + rewardBps + "\n";
+  const {mul, endOfService, balanceCap} = await lp.noFeeCoinMap(addr); 
+  result += "EndOfService:" + endOfService + "\n";
+  result += "Balance Cap:" + balanceCap + "\n";
+  const paused = await lp.pausedTokens(addr); 
+  result += "Paused:" + paused + "\n";
+  console.log(result);
+  u('#tokenInfo').text(result);
+});
+
+u('#swapToSTBTBtn').handle('click', async (e) => {
+  const addr = u('#swapFromToken').first().value
+  const fromTokenAmount = u('#fromTokenAmount').first().value
+  const minAmountOut = u('#minAmountOut').first().value
+  await lp.swapToSTBT(addr, fromTokenAmount, minAmountOut); 
+});
+
+u('#getSwapToSTBTAmountOutBtn').handle('click', async (e) => {
+  const addr = u('#swapFromToken').first().value
+  const fromTokenAmount = u('#fromTokenAmount').first().value
+  const out = await lp.getSwapToSTBTAmountOut(addr, fromTokenAmount); 
+  console.log(result);
+  u('#STBTAmountOut').text(out)
+});
+
+
+u('#pauseTokenBtn').handle('click', async (e) => {
+  const addr = u('#pausedTokenAddr').first().value
+  await lp.pauseToken(addr); 
+});
+
+u('#setRewardBpsBtn').handle('click', async (e) => {
+  const addr = u('#rewardTokenAddr').first().value
+  const bps = u('#rewardBPS').first().value
+  await lp.setRewardBps(addr, bps); 
+});
+
+u('#setLpBtn').handle('click', async (e) => {
+  const addr = u('#lpAddr').first().value
+  await lp.setLp(addr); 
+});
+
+u('#addNoFeeCoinBtn').handle('click', async (e) => {
+  const addr = u('#noFeeCoinAddr').first().value
+  const endOfService = u('#endOfService').first().value
+  const balanceCap = u('#balanceCap').first().value
+  await lp.addNoFeeCoin(addr, endOfService, balanceCap); 
+});
+
+u('#addNoFeeCoinBtn').handle('click', async (e) => {
+  const addr = u('#removeNoFeeCoinAddr').first().value
+  await lp.removeNoFeeCoin(addr); 
+});
+
+u('#setPausedBtn').handle('click', async (e) => {
+  const b = u('#pauseBool').first().value
+  await lp.setPaused(b); 
+});
+
+u('#withdrawTokenBtn').handle('click', async (e) => {
+  const addr = u('#withdrawTokenAddr').first().value
+  const amount = u('#withdrawAmount').first().value
+  await lp.withdrawToken(addr, amount); 
+});
+
+u('#depositSTBTBtn').handle('click', async (e) => {
+  const addr = u('#depositAmount').first().value
+  await lp.depositSTBT(addr, amount); 
+});
+
+u('#setPauserBtn').handle('click', async (e) => {
+  const addr = u('#pauserAddr').first().value
+  await lp.setPauser(addr); 
+});
+
+  </script>
+  </body>
+</html>
