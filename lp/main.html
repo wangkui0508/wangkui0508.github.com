@@ -475,7 +475,7 @@ u('#withdrawTokenBtn').handle('click', async (e) => {
 
 u('#depositSTBTBtn').handle('click', async (e) => {
   const amount = u('#depositAmount').first().value
-  await lp.depositSTBT(addr, amount); 
+  await lp.depositSTBT(amount); 
 });
 
 u('#setPauserBtn').handle('click', async (e) => {
