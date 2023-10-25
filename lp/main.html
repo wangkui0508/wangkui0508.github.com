@@ -288,6 +288,7 @@ u('#connectBtn').handle('click', async (e) => {
   myAddr = await signer.getAddress();
   console.log('myAddr:', myAddr);
   lp = new ethers.Contract(lpContractAddr, lpABI, provider);
+  lp = lp.connect(signer);
 });
 
 u('#tabTraderOps').handle('click', async (e) => {
