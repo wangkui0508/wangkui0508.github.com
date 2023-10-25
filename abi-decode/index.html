@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <script src="abi-decoder.js"></script>
+  <script src="jquery.min.js"></script>
+  <script src="bootstrap.min.js"></script>
+  <link rel="stylesheet" href="bootstrap.min.css" type="text/css">
+  <style type="text/css">
+    body {
+      background-color: #eee;
+    }
+  </style>
+  <script type="text/javascript">
+    function decode(abi, data) {
+      var output = "error"
+      try {
+        const jsonABI = JSON.parse(abi)
+        abiDecoder.addABI(jsonABI)
+        output = abiDecoder.decodeMethod(data)
+      } catch (e) {
+        console.log(e)
+        $($("#error")[0]).html(
+          `
+          <div class="alert alert-danger alert-dismissible" style="display:none;" role="alert">
+            Can't process the ABI / Input: `
+          + e +
+          `
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          `
+        )
+        $(".alert").show()
+      }
+      return output
+    }
+
+    $(document).ready(function () {
+      $("#decode").click(function () {
+        $(".alert").hide()
+        const abi = $("#abi-textarea")[0].value
+        const input = $("#input-data-textarea")[0].value
+        const output = decode(abi, input)
+        $("#output-textarea")[0].value = JSON.stringify(output, null, 2)
+      });
+    })
+  </script>
+</head>
+
+<body>
+
+  <body class="container-fluid">
+    <h1>Ethereum ABI Decoder</h1>
+    <div id="error">
+    </div>
+    <div class="row">
+      <div class="col-6">
+        <div class="form-group">
+          <label for="abi-textarea">ABI</label>
+          <textarea class="form-control text-monospace" style="font-size: 12px;" id="abi-textarea" rows="25">[
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "_sireId",
+                "type": "uint256"
+            },
+            {
+                "name": "_matronId",
+                "type": "uint256"
+            }
+        ],
+        "name": "bidOnSiringAuction",
+        "outputs": [],
+        "payable": true,
+        "stateMutability": "payable",
+        "type": "function"
+    }
+]</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="input-data-textarea">Input Data</label>
+          <textarea class="form-control text-monospace" style="font-size: 12px;" id="input-data-textarea" rows="10">0xed60ade600000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001</textarea>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="form-group">
+          <label for="output-textarea">Output</label>
+          <textarea readonly class="form-control text-monospace" style="font-size: 12px; background-color: white" id="output-textarea"
+            rows="39"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-3">
+        <button type="button" class="btn btn-block btn-lg btn-primary align-self-end" id="decode">Decode →</button>
+      </div>
+    </div>
+  </body>
+
+</html>
+
