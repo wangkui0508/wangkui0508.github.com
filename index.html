@@ -455,13 +455,18 @@ async function handleMessageAsIframe(e) {
         return;
     }
     if(e.data.Pay4BestWalletReq.GetEvmAddr) {
-        if(!window.EVMAddress) {
+        try {
+            if(!window.EVMAddress) {
             const accounts = await window.ethereum.request({method: "eth_requestAccounts"});
             const addr = accounts[0];
             window.EVMAddress = addr;
+            e.ports[0].postMessage(window.EVMAddress);  
+            return; 
         }
-        e.ports[0].postMessage(window.EVMAddress);
-        return;
+        } catch (error) {
+            console.error("GetEvmAddr error: ", error)
+            e.ports[0].postMessage("GetEvmAddr-error");  
+        }
     }
     var tx = e.data.Pay4BestWalletReq.UnsignedTx;
     const reqID = await getObjectHash(tx);
