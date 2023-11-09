@@ -863,10 +863,11 @@ u('#addTokenSchBtn').handle('click', async (e) => {
   const receiver = u('#addTokenReceiver').first().value;
   console.log(tokenAddr, cap, feeBps, rewardBps, receiver);
 
-  const data = sideLp.interface.encodeFunctionData('addToken',
-      [tokenAddr, cap, feeBps, rewardBps, receiver]);
-  console.log('data:', data);
-  await sideTl.schedule(sideLp.address, 0, data, ZERO, ZERO, 0); 
+  //const data = sideLp.interface.encodeFunctionData('addToken',
+  //    [tokenAddr, cap, feeBps, rewardBps, receiver]);
+  //console.log('data:', data);
+  //await sideTl.schedule(sideLp.address, 0, data, ZERO, ZERO, 0); 
+  await sideLp.addToken(tokenAddr, cap, feeBps, rewardBps, receiver);
 });
 u('#addTokenExeBtn').handle('click', async (e) => {
   console.log('addToken execute');
