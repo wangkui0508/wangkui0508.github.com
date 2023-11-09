@@ -792,7 +792,7 @@ u('#setLpBtn').handle('click', async (e) => {
   console.log('setLp');
   const addr = u('#setLpAddr').first().value;
   console.log('addr:', addr);
-  // await sideLp.setLp(addr); 
+  await sideLp.setLp(addr); 
 });
 u('#setLpSchBtn').handle('click', async (e) => {
   console.log('setLp schedule');
@@ -823,7 +823,7 @@ u('#setOpBtn').handle('click', async (e) => {
   console.log('setOp');
   const addr = u('#setOpAddr').first().value;
   console.log('addr:', addr);
-  // await sideLp.setOperator(addr); 
+  await sideLp.setOperator(addr); 
 });
 u('#setOpSchBtn').handle('click', async (e) => {
   console.log('setOp schedule');
@@ -852,7 +852,7 @@ u('#addTokenBtn').handle('click', async (e) => {
   const rewardBps = u('#addTokenRewardBps').first().value;
   const receiver = u('#addTokenReceiver').first().value;
   console.log(tokenAddr, cap, feeBps, rewardBps, receiver);
-  // await sideLp.addToken(tokenAddr, cap, feeBps, rewardBps, receiver);
+  await sideLp.addToken(tokenAddr, cap, feeBps, rewardBps, receiver);
 });
 u('#addTokenSchBtn').handle('click', async (e) => {
   console.log('addToken schedule');
@@ -887,7 +887,7 @@ u('#delTokenBtn').handle('click', async (e) => {
   console.log('delToken');
   const tokenAddr = u('#delTokenAddr').first().value;
   console.log(tokenAddr);
-  // await sideLp.removeToken(tokenAddr);
+  await sideLp.removeToken(tokenAddr);
 });
 u('#delTokenSchBtn').handle('click', async (e) => {
   console.log('delToken schedule');
@@ -913,7 +913,7 @@ u('#withdrawTokenBtn').handle('click', async (e) => {
   const addr = u('#withdrawTokenAddr').first().value;
   const amt = u('#withdrawTokenAmt').first().value;
   console.log(addr, amt);
-  // await sideLp.withdrawToken(addr, amt);
+  await sideLp.withdrawToken(addr, amt);
 });
 u('#withdrawTokenSchBtn').handle('click', async (e) => {
   console.log('withdrawToken schedule');
@@ -948,7 +948,7 @@ u('#setPausedBtn').handle('click', async (e) => {
   console.log('setPaused');
   const flag = u('#setPausedFlag').first().checked;
   console.log('flag:', flag);
-  // await sideLp.setPaused(flag);
+  await sideLp.setPaused(flag);
 });
 
 u('#getTokenCfgBtn').handle('click', async (e) => {
@@ -977,15 +977,15 @@ u('#setTokenCfgBtn').handle('click', async (e) => {
   console.log('feeBps:', feeBps);
   console.log('rewardBps:', rewardBps);
   console.log('enabled:', enabled);
-  // console.log('receiver:', receiver);
-  // await sideLp.configToken(tokenAddr, cap, feeBps, rewardBps, enabled);
+  console.log('receiver:', receiver);
+  await sideLp.configToken(tokenAddr, cap, feeBps, rewardBps, enabled);
 });
 
 u('#depositUsdvBtn').handle('click', async (e) => {
   console.log('depositUsdv');
   const amt = u('#depositUsdvAmt').first().value;
   console.log('amt:', amt);
-  // await sideLp.depositUSDV(amt);
+  await sideLp.depositUSDV(amt);
 });
 
 u('#getWhitelistBtn').handle('click', async (e) => {
@@ -1002,7 +1002,7 @@ u('#setWhitelistBtn').handle('click', async (e) => {
   const addr = u('#whitelistAddr').first().value;
   const flag = u('#whitelistFlag').first().checked;
   console.log(addr, flag);
-  // await sideLp.setWhitelist(addr, flag);
+  await sideLp.setWhitelist(addr, flag);
 });
 
 // ---------- swap ----------
