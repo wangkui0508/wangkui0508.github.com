@@ -3,210 +3,233 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mainchain LP Frontend</title>
+    <title>Ethereum LP Frontend</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
   </head>
   <body>
+
+  <div class="box">
+    <div class="control">
+      <button class="button is-link" id="connectBtn">Connect</button>
+      <span id="addressHeader" style="font-size:14pt">---</span>
+    </div>
+  </div>
+
   <section class="section">
-    <h1 class="title">Mainchain LP Frontend</h1>
+    <h1 class="title">Ethereum LP Frontend</h1>
     <div class="tabs">
       <ul>
-        <li id="tabTraderOps" class="is-active"><a>Trader Ops</a></li>
+        <li id="tabInfo" class="is-active"><a>Info</a></li>
         <li id="tabOwnerOps"><a>Owner Ops</a></li>
+        <li id="tabOperatorOps"><a>Operator Ops</a></li>
+        <li id="tabSwapOps"><a>Swap Ops</a></li>
+        <li id="tabTimelockOps"><a>Timelock Ops</a></li>
+        <li id="tabCalldata"><a>Calldata Decoder</a></li>
       </ul>
     </div>
   </section>
 
-  <section id="secTraderOps" class="section">
-        <div class="control">
-          <button class="button is-link" id="connectBtn">Connect</button>
-        </div>
-	<hr/>
-
+  <section id="secInfo" class="section">
     <div class="panel is-link">
-      <p class="panel-heading">Basic Information</p>
-      <div class="box">     
-        <pre id="info">
-        </pre>
+      <p class="panel-heading">Basic Info</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Paused?</label>
+          <input class="input" type="text" id="infoPaused" readonly />
+        </div>
+        <div class="field">
+          <label class="label">Owner Address (TimelockController Address)</label>
+          <input class="input" type="text" id="infoLpOwner" readonly />
+        </div>
+        <div class="field">
+          <label class="label">LP Address</label>
+          <input class="input" type="text" id="infoLpAddr" readonly />
+        </div>
+        <div class="field">
+          <label class="label">Operator Address</label>
+          <input class="input" type="text" id="infoOperatorAddr" readonly />
+        </div>
+        <div class="field">
+          <label class="label">STBT Address</label>
+          <input class="input" type="text" id="infoStbtAddr" readonly />
+        </div>
+        <div class="field">
+          <label class="label">STBT Minter Address</label>
+          <input class="input" type="text" id="infoStbtMinterAddr" readonly />
+        </div>
+        <div class="field">
+          <label class="label">USDV Minter Proxy</label>
+          <input class="input" type="text" id="infoUsdvMinterProxyAddr" readonly />
+        </div>
+        <div class="field">
+          <label class="label">Owner of USDV Minter Proxy</label>
+          <input class="input" type="text" id="infoUsdvMinterProxyOwner" readonly />
+        </div>
+        <div class="field">
+          <label class="label">Registered Code Hashes</label>
+          <input class="input" type="text" id="infoRegisteredCodeHashes" readonly />
+        </div>
+        <div class="field">
+          <label class="label">EthLP's Implementation</label>
+          <input class="input" type="text" id="infoEthLpImpl" readonly />
+        </div>
+        <div class="field">
+          <label class="label">EthLP's ProxyAdmin</label>
+          <input class="input" type="text" id="infoProxyAdminAddr" readonly />
+        </div>
+        <div class="field">
+          <label class="label">Owner of EthLP's ProxyAdmin</label>
+          <input class="input" type="text" id="infoProxyAdminOwner" readonly />
+        </div>
         <div class="control">
-          <button class="button is-link" id="getInfoBtn">Get Info</button>
+          <button class="button is-link" id="getBasicInfoBtn">Refresh</button>
         </div>
       </div>
     </div>
 
     <div class="panel is-link">
-      <p class="panel-heading">Token Information</p>
-      <div class="box">     
-        <div class="field">
-          <label class="label">Token Address</label>
-          <input class="input" type="text" id="tokenAddr">
-        </div> 
-        <pre id="tokenInfo">
-        </pre>
+      <p class="panel-heading">Tokens Info</p>
+      <div class="box">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Address</th>
+                <th>Paused</th>
+                <th>FeeBps</th>
+                <th>RewardBps</th>
+                <th>Receiver</th>
+                <th>Withdraw To Receiver</th>
+                <th>Cap</th>
+                <th>Mul</th>
+                <th>EndOfService</th>
+              </tr>
+            </thead>
+            <tbody id="allTokenRows">
+            </tbody>
+          </table>
+        </div>
         <div class="control">
-          <button class="button is-link" id="getTokenInfoBtn">Get Token Info</button>
+          <button class="button is-link" id="getAllTokensBtn">Refresh</button>
         </div>
       </div>
     </div>
 
     <div class="panel is-link">
-      <p class="panel-heading">STBT Whitelist Query</p>
-      <div class="box">     
+      <p class="panel-heading">Query Minter by Color</p>
+      <div class="box">
         <div class="field">
-          <label class="label">Address</label>
-          <input class="input" type="text" id="queriedAddr">
-        </div> 
-        <pre id="stbtWhitelist">
-        </pre>
+          <label class="label">Color ID</label>
+          <input class="input" type="text" id="queryColorIn"/>
+        </div>
+        <div class="field">
+          <label class="label">Minter Address</label>
+          <input class="input" type="text" id="queryMinterOut" readonly />
+        </div>
         <div class="control">
-          <button class="button is-link" id="stbtWhitelistBtn">Query</button>
+          <button class="button is-link" id="queryMinterByColorBtn">Query</button>
         </div>
       </div>
     </div>
 
     <div class="panel is-link">
-      <p class="panel-heading">Approve STBT to LP Contract</p>
-      <div class="box">     
+      <p class="panel-heading">Query Color by Minter</p>
+      <div class="box">
         <div class="field">
-          <label class="label">Amount</label>
-          <input class="input" type="text" id="approveAmount">
-        </div> 
-        <div class="control">
-          <button class="button is-link" id="approveSTBTtoLPBtn">Submit</button>
+          <label class="label">Minter Address</label>
+          <input class="input" type="text" id="queryMinterIn" />
         </div>
-      </div>
-    </div>
-
-    <div class="panel is-link">
-      <p class="panel-heading">Swap To STBT</p>
-      <div class="box">     
         <div class="field">
-          <label class="label">Swap From Token</label>
-          <input class="input" type="text" id="swapFromToken">
-        </div> 
-        <div class="field">
-          <label class="label">In Amount</label>
-          <input class="input" type="text" id="fromTokenAmount">
-        </div> 
-        <div class="field">
-          <label class="label">Minimum Mount Amount</label>
-          <input class="input" type="text" id="minAmountOut">
-        </div> 
-        <div class="control">
-          <button class="button is-link" id="swapToSTBTBtn">Submit</button>
+          <label class="label">Color ID</label>
+          <input class="input" type="text" id="queryColorOut" readonly/>
         </div>
         <div class="control">
-          <button class="button is-link" id="getSwapToSTBTAmountOutBtn">getSwapToSTBTAmountOut</button>
+          <button class="button is-link" id="queryColorByMinterBtn">Query</button>
         </div>
-        <pre id="STBTAmountOut">
-        </pre>
       </div>
     </div>
 
   </section>
 
   <section id="secOwnerOps" class="section is-hidden">
-    <div class="panel is-link">
-      <p class="panel-heading">Pause Token</p>
-      <div class="box">     
-        <div class="field">
-          <label class="label">Token Address</label>
-          <input class="input" type="text" id="pausedTokenAddr">
-        </div> 
-        <div class="control">
-          <button class="button is-link" id="pauseTokenBtn">Submit</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel is-link">
-      <p class="panel-heading">Set Reward BPS</p>
-      <div class="box">     
-        <div class="field">
-          <label class="label">Token Address</label>
-          <input class="input" type="text" id="rewardTokenAddr">
-        </div> 
-        <div class="field">
-          <label class="label">BPS</label>
-          <input class="input" type="number" id="rewardBPS">
-        </div> 
-        <div class="control">
-          <button class="button is-link" id="setRewardBpsBtn">Submit</button>
-        </div>
-      </div>
-    </div>
 
     <div class="panel is-link">
       <p class="panel-heading">Set LP</p>
-      <div class="box">     
+      <div class="box">
         <div class="field">
           <label class="label">LP Address</label>
-          <input class="input" type="text" id="lpAddr">
-        </div> 
+          <input class="input" type="text" id="setLpAddr" />
+        </div>
         <div class="control">
+          <button class="button is-link" id="getLpBtn">Query</button>
           <button class="button is-link" id="setLpBtn">Submit</button>
         </div>
       </div>
     </div>
 
     <div class="panel is-link">
-      <p class="panel-heading">Add No Fee Coin</p>
-      <div class="box">     
+      <p class="panel-heading">Set Operator</p>
+      <div class="box">
         <div class="field">
-          <label class="label">No Fee Coin Address</label>
-          <input class="input" type="text" id="noFeeCoinAddr">
-        </div> 
-        <div class="field">
-          <label class="label">End Of Service</label>
-          <input class="input" type="text" id="endOfService">
-        </div> 
-        <div class="field">
-          <label class="label">Balance Cap</label>
-          <input class="input" type="text" id="balanceCap">
-        </div> 
+          <label class="label">Operator Address</label>
+          <input class="input" type="text" id="setOperatorAddr" />
+        </div>
         <div class="control">
-          <button class="button is-link" id="addNoFeeCoinBtn">Submit</button>
+          <button class="button is-link" id="getOperatorBtn">Query</button>
+          <button class="button is-link" id="setOperatorBtn">Submit</button>
         </div>
       </div>
     </div>
 
     <div class="panel is-link">
-      <p class="panel-heading">Remove No Fee Coin</p>
-      <div class="box">     
+      <p class="panel-heading">Add Token</p>
+      <div class="box">
         <div class="field">
-          <label class="label">Coin Address</label>
-          <input class="input" type="text" id="removeNoFeeCoinAddr">
-        </div> 
-        <div class="control">
-          <button class="button is-link" id="removeNoFeeCoinBtn">Submit</button>
+          <label class="label">Token Address</label>
+          <input class="input" type="text" id="addTokenAddr" />
         </div>
-      </div>
-    </div>
-
-    <div class="panel is-link">
-      <p class="panel-heading">Set Global Pause</p>
-      <div class="box">     
         <div class="field">
-          <label class="label">true of false?</label>
-          <input class="input" type="text" id="pauseBool">
-        </div> 
+          <label class="label">Cap</label>
+          <input class="input" type="text" id="addTokenCap" />
+        </div>
+        <div class="field">
+          <label class="label">FeeBps</label>
+          <input class="input" type="text" id="addTokenFeeBps" />
+        </div>
+        <div class="field">
+          <label class="label">RewardBps</label>
+          <input class="input" type="text" id="addTokenRewardBps" />
+        </div>
+        <div class="field">
+          <label class="label">Receiver</label>
+          <input class="input" type="text" id="addTokenReceiver" />
+        </div>
+        <div class="field">
+          <label class="label">Withdraw To Receiver</label>
+          <input class="checkbox" type="checkbox" id="addTokenWithdrawToReceiver" />
+        </div>
+        <div class="field">
+          <label class="label">EndOfService</label>
+          <input class="input" type="number" id="addTokenEndOfService" />
+        </div>
         <div class="control">
-          <button class="button is-link" id="setPausedBtn">Submit</button>
+          <button class="button is-link" id="addTokenBtn">Submit</button>
         </div>
       </div>
     </div>
 
     <div class="panel is-link">
       <p class="panel-heading">Withdraw Token</p>
-      <div class="box">     
+      <div class="box">
         <div class="field">
           <label class="label">Token Address</label>
-          <input class="input" type="text" id="withdrawTokenAddr">
-        </div> 
+          <input class="input" type="text" id="withdrawTokenAddr" />
+        </div>
         <div class="field">
           <label class="label">Amount</label>
-          <input class="input" type="text" id="withdrawAmount">
-        </div> 
+          <input class="input" type="text" id="withdrawTokenAmt" />
+        </div>
         <div class="control">
           <button class="button is-link" id="withdrawTokenBtn">Submit</button>
         </div>
@@ -214,102 +237,382 @@
     </div>
 
     <div class="panel is-link">
-      <p class="panel-heading">Deposit STBT</p>
-      <div class="box">     
+      <p class="panel-heading">Transfer Ownership Directly (only use once)</p>
+      <div class="box">
         <div class="field">
-          <label class="label">Amount</label>
-          <input class="input" type="text" id="depositAmount">
-        </div> 
-        <div class="control">
-          <button class="button is-link" id="depositSTBTBtn">Submit</button>
+          <label class="label">New Owner Address</label>
+          <input class="input" type="text" id="newOwnerAddr" />
         </div>
-      </div>
-    </div>
-
-    <div class="panel is-link">
-      <p class="panel-heading">Set Pauser</p>
-      <div class="box">     
-        <div class="field">
-          <label class="label">Pauser Address</label>
-          <input class="input" type="text" id="pauserAddr">
-        </div> 
         <div class="control">
-          <button class="button is-link" id="setPauserBtn">Submit</button>
+          <button class="button is-link" id="transferOwnershipBtn">Submit</button>
         </div>
       </div>
     </div>
 
   </section>
+
+  <section id="secOperatorOps" class="section is-hidden">
+    <div class="panel is-link">
+      <p class="panel-heading">Pause (EthereumLP)</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Paused</label>
+          <input class="checkbox" type="checkbox" id="setPausedFlag" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="getPausedBtn">Query</button>
+          <button class="button is-link" id="setPausedBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Config Token (EthereumLP)</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Token Address</label>
+          <input class="input" type="text" id="cfgTokenAddr" />
+        </div>
+        <div class="field">
+          <label class="label">Cap</label>
+          <input class="input" type="text" id="cfgTokenCap" />
+        </div>
+        <div class="field">
+          <label class="label">FeeBps</label>
+          <input class="input" type="text" id="cfgTokenFeeBps" />
+        </div>
+        <div class="field">
+          <label class="label">RewardBps</label>
+          <input class="input" type="text" id="cfgTokenRewardBps" />
+        </div>
+        <div class="field">
+          <label class="label">Paused</label>
+          <input class="checkbox" type="checkbox" id="cfgTokenPaused" />
+        </div>
+        <div class="field">
+          <label class="label">Withdraw to Receiver on Overflow</label>
+          <input class="checkbox" type="checkbox" id="cfgTokenWithdrawToReceiver" />
+        </div>
+        <div class="field">
+          <label class="label">EndOfService</label>
+          <input class="input" type="number" id="cfgTokenEndOfService" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="getTokenCfgBtn">Query</button>
+          <button class="button is-link" id="setTokenCfgBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Deposit STBT (EthereumLP)</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Amount</label>
+          <input class="input" type="text" id="depositStbtAmt" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="depositStbtBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Add Minter CodeHash (MinterProxy)</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Code Hash</label>
+          <input class="input" type="text" id="minterCodeHashToAdd" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="addMinterCodeHashBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Remove Minter CodeHash (MinterProxy)</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Code Hash</label>
+          <input class="input" type="text" id="minterCodeHashToRemove" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="removeMinterCodeHashBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Register Minter (MinterProxy)</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Code Hash</label>
+          <input class="input" type="text" id="minterAddressToRegister" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="registerMinterBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Unregister Minter (MinterProxy)</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Code Hash</label>
+          <input class="input" type="text" id="minterAddressToUnregister" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="unregisterMinterBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Set EthereumLP's address (MinterProxy)</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Code Hash</label>
+          <input class="input" type="text" id="ethereumLPAddress" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="setToSTBTLpBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <section id="secSwapOps" class="section is-hidden">
+
+    <div class="panel is-link">
+      <p class="panel-heading">GetSTBTOut</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">From Token</label>
+          <input class="input" type="text" id="getStbtOutAddr" />
+        </div>
+        <div class="field">
+          <label class="label">Amount</label>
+          <input class="input" type="text" id="getStbtOutAmt" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="getStbtOutBtn">Query</button>
+        </div>
+        <br/>
+        <div class="field">
+          <label class="label">Out</label>
+          <textarea class="textarea" id="getStbtOutOut" readonly></textarea>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="section is-hidden" id="secTimelockOps">
+  <div class="panel is-link">
+      <table class="table" style="margin-top: -50px">
+          <thead class="panel-heading">
+          <tr>
+              <th width="95%"><p style="font-size: 1.318em">Pending Txs:</p></th>
+              <th><button class="button" id="viewTxsBtn">Refresh</button></th>
+          </tr>
+          </thead>
+      </table>
+      <table class="table" style="margin-top: 20px">
+          <thead>
+          <tr>
+              <th width="10%">target</th>
+              <th width="3%">value</th>
+              <th width="3%">predecessor</th>
+              <th width="3%">salt</th>
+              <th width="3%">delay</th>
+              <th width="35%">data decode</th>
+              <th width="3%">execute button</th>
+              <th width="3%">cancel button</th>
+          </tr>
+          </thead>
+          <tbody id="txsRows">
+          </tbody>
+      </table>
+  </div>
+  </section>
+
+  <section id="secCalldata" class="section is-hidden">
+    <div class="panel is-link">
+      <p class="panel-heading">Decode Calldata</p>
+      <div class="box"> 
+        <div class="field">
+          <label class="label">Target Address</label>
+          <input class="input" type="text" id="decodeCdAddr" />
+        </div>
+        <div class="field">
+          <label class="label">Calldata</label>
+          <textarea class="textarea" id="decodeCdData" placeholder="0x"></textarea>
+        </div>
+        <div class="control">
+          <button class="button is-link" id="decodeCdBtn">Decode</button>
+        </div>
+        <br/>
+        <div class="field">
+          <textarea class="textarea" id="decodeCdResult" readonly placeholder="decoded"></textarea>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
   <script type="module">
 import { ethers } from "./ethers-5.4.esm.min.js";
 import u from './umbrella-3.3.0.esm.js';
 import { toast } from './bulma-toast.esm.js';
 
+//ethereum:
+//const ethLpAddr = "0x3986D5C53cE965EA16EF66845AB56A9DdE9Cd210";
+//const timelockControllerAddr = "0x050073174f5E47D1f8C1F5e8E9B00D6af73458a1"; //tempory testing account
+//const minterProxyAddr = "0x3c6CE18aFDE845635A32a69D0a7721b0Db84118e";
 
-const erc20ABI = [
-"function name() public view returns (string)",
-"function symbol() public view returns (string)",
-"function decimals() public view returns (uint8)",
-"function totalSupply() public view returns (uint256)",
-"function balanceOf(address _owner) public view returns (uint256 balance)",
-"function transfer(address _to, uint256 _value) public returns (bool success)",
-"function transferFrom(address _from, address _to, uint256 _value) public returns (bool success)",
-"function approve(address _spender, uint256 _value) public returns (bool success)",
-"function allowance(address _owner, address _spender) public view returns (uint256 remaining)"
+//testnet:
+const ethLpAddr = "0x0E66f2E0EA24210e42CB75998647EbcF61Dce1De";
+const timelockControllerAddr = "0x57FD4803c1e074B774465dE584033d338289c586";
+const minterProxyAddr = "0xcb71649002AEcbeb0b076D9f15d149A6DBEdA915";
+
+const OPERATOR = "0x4c5D0f96331d3140Fe1D02cc507007e8db76Ac1E";
+const MPOWNER = "0x30109F25428cBe2AA7FD33646A097BfBECF17365";
+
+const ZERO = "0x0000000000000000000000000000000000000000000000000000000000000000";
+const DELAY = 20;
+
+const proxyAdminABI = [
+  "function owner() public view returns (address)",
 ]
 
-const stbtABI = [
-"function permissions(address addr) external view returns (bool sendAllowed, bool receiveAllowed, uint64 expiryTime)"
+const timelockControllerABI = [
+  "event CallScheduled(bytes32 indexed id,uint256 indexed index,address target,uint256 value,bytes data,bytes32 predecessor,uint256 delay)",
+  "event CallSalt(bytes32 indexed id, bytes32 salt)",
+  "function cancel(bytes32 id) external",
+  "function schedule(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt, uint256 delay) external",
+  "function execute(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) external",
+  "function isOperationPending(bytes32 id) public view returns (bool)",
+  "function isOperationReady(bytes32 id) public view returns (bool)",
 ]
 
-const lpContractAddr = '0x04458f712359fA6Aa2dB3b0d4f49C7b92794DD48'; //EthereumLP
-const lpABI = [
-"function stbt() external view returns (address)",
-"function stbtMinter() external view returns (address)",
-"function usdvMinterProxy() external view returns (address)",
-"function dssPsm() external view returns (address)",
-"function curve3pool() external view returns (address)",
-"function dai() external view returns (address)",
-"function usdc() external view returns (address)",
-"function usdt() external view returns (address)",
-"function lp() external view returns (address)",
-"function pauser() external view returns (address)",
-"function owner() external view returns (address)",
+const ethLpABI = [
+  "function owner() public view returns (address)",
+  "function paused() public view returns (bool)",
+  "function lp() public view returns (address)",
+  "function operator() public view returns (address)",
+  "function stbt() public view returns (address)",
+  "function stbtMinter() public view returns (address)",
+  "function usdvMinterProxy() public view returns (address)",
+  
+  "function getSupportedTokens() external view returns (address[])",
+  "function getAllTokens() external view returns (address[])",
+  "function tokenConfigs(address token) public view returns (tuple(uint64 mul, uint64 endOfService, uint96 balanceCap, uint16 feeBps, uint16 rewardBps, bool paused, uint8 overflowAction, address receiver))",
+  "function getSTBTOut(address, uint) public view returns (uint)",
 
-"function rewardBpsMap(address token) external view returns (uint16)",
-"function noFeeCoinMap(address token) external view returns (uint64 mul, uint64 endOfService, uint96 balanceCap)",
-"function pausedTokens(address token) external view returns (bool)",
+// Owner
+  "function setLp(address _lp) external",
+  "function setOperator(address _operator) external",
+  "function transferOwnership(address newOwner) external",
+  "function addToken(address _token, address _receiver, tuple(uint64 endOfService, uint96 balanceCap, uint16 feeBps, uint16 rewardBps, bool paused, uint8 overflowAction)) external",
+  "function withdrawToken(address _token, uint _amount) external",
 
-"function getSupportedTokens() external view returns (address[] memory tokens)",
-
-"function pauseToken(address _token, bool _flag) external",
-
-"function setRewardBps(address _token, uint16 _rewardBps) external",
-
-"function setLp(address _lp)",
-
-"function addNoFeeCoin(address _token, uint64 _endOfService, uint96 _balanceCap) external",
-
-"function removeNoFeeCoin(address _token) external",
-
-"function setPaused(bool _p) external",
-
-"function withdrawToken(address _token, uint _amount) external",
-
-"function depositSTBT(uint _amount) external",
-
-"function setPauser(address _pauser) external",
-
-"function swapToSTBT(address _fromToken, uint256 _fromTokenAmount, uint256 _minAmountOut) external returns (uint requestedOut, uint rewardOut)",
-
-"function getSwapToSTBTAmountOut(address _fromToken, uint _fromTokenAmount) external view returns (uint requestedOut, uint rewardOut)"
+// Operator
+  "function setPaused(bool _p) external",
+  "function setTokenConfig(address _token, tuple(uint64 endOfService, uint96 balanceCap, uint16 feeBps, uint16 rewardBps, bool paused, uint8 overflowAction)) external",
+  "function depositSTBT(uint _amount) external",
 ];
 
-const stbtAddress = "0x530824DA86689C9C17CdC2871Ff29B058345b44a";
+const minterProxyABI = [
+"function owner() public view returns (address)",
+"function getMinterCodeHashes() external view returns (uint[] memory)",
+"function colorToMinter(uint32 color) external view returns (address)",
+"function minterToColor(address minter) external view returns (uint32)",
+
+// Operator
+"function addMinterCodeHash(uint _hash) external",
+"function removeMinterCodeHash(uint _hash) external",
+"function registerMinter(address _minter) external",
+"function unregisterMinter(address _minter) external",
+"function setToSTBTLp(address _toSTBTLp) external",
+]
+
+const erc20ABI = [
+  "function name() public view returns (string)",
+  "function symbol() public view returns (string)",
+  "function decimals() public view returns (uint8)",
+  "function totalSupply() public view returns (uint256)",
+  "function balanceOf(address _owner) public view returns (uint256 balance)",
+  "function transfer(address _to, uint256 _value) public returns (bool success)",
+  "function transferFrom(address _from, address _to, uint256 _value) public returns (bool success)",
+  "function approve(address _spender, uint256 _value) public returns (bool success)",
+  "function allowance(address _owner, address _spender) public view returns (uint256 remaining)",
+]
+
 var provider;
 var signer;
 var myAddr;
-var lp;
+var ethLp;
+var minterProxy;
+var timelockController;
+
+function getAddrAtSlot(contractAddr, slot) {
+  return provider.getStorageAt(contractAddr, slot)
+    .then(x => x.replace('0x000000000000000000000000', '0x'))
+}
+
+function decodeCalldataWithIfc(ifc, calldata) {
+  for (const frag of ifc.fragments) {
+    const selector = ifc.getSighash(frag);
+    if(calldata.startsWith(selector)) {
+      return {func: frag.name, args: ifc.decodeFunctionData(frag, calldata)};
+    }
+  }
+}
+
+function decodeCalldata(addr, calldata) {
+  if (addr == ethLpAddr) {
+    return decodeCalldataWithIfc(ethLp.interface, calldata);
+  } else if (addr == minterProxyAddr) {
+    return decodeCalldataWithIfc(minterProxy.interface, calldata);
+  } else if (addr == timelockControllerAddr) {
+    const decTl = decodeCalldataWithIfc(timelockController.interface, calldata);
+    if(decTl.target) {
+      return {tl: decTl, real: decodeCalldata(decTl.target, decTl.data)}
+    } else {
+      return decTl;
+    }
+  } else {
+    return "Unknown Address";
+  }
+}
+
+// ---------- tabs ----------
+
+const tabIds = ['#tabInfo', '#tabSwapOps', '#tabOwnerOps', '#tabOperatorOps', '#tabTimelockOps', '#tabCalldata'];
+const secIds = ['#secInfo', '#secSwapOps', '#secOwnerOps', '#secOperatorOps', '#secTimelockOps', '#secCalldata'];
+
+// handle tab switching
+for (const tabId of tabIds) {
+  const secId = tabId.replace('tab', 'sec');
+  u(tabId).handle('click', (e) => {
+    u(tabId).addClass('is-active');
+    u(secId).removeClass('is-hidden');
+    tabIds.filter(x => x != tabId).forEach(x => u(x).removeClass('is-active'));
+    secIds.filter(x => x != secId).forEach(x => u(x).addClass('is-hidden'));
+    window.location.hash = tabId;
+  });
+}
+
+console.log(window.location);
+const tabId = window.location.hash;
+if (tabId) {
+  u(tabId).trigger('click');
+}
+
+// ---------- connect button ----------
 
 u('#connectBtn').handle('click', connectWallet);
 document.onload = connectWallet;
@@ -323,167 +626,439 @@ async function connectWallet(e) {
   signer = provider.getSigner();
   myAddr = await signer.getAddress();
   console.log('myAddr:', myAddr);
-  lp = new ethers.Contract(lpContractAddr, lpABI, provider);
-  lp = lp.connect(signer);
+  u("#addressHeader").text(myAddr);
+
+  const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+  console.log('chainId:', chainId);
+  ethLp = new ethers.Contract(ethLpAddr, ethLpABI, provider);
+  console.log('ethLp:', ethLp);
+  ethLp = ethLp.connect(signer); //TEMP
+
+  //minterProxyAddr = await ethLp.usdvMinterProxy();
+  minterProxy = new ethers.Contract(minterProxyAddr, minterProxyABI, provider);
+  minterProxy = minterProxy.connect(signer); //TEMP
+
+  //timelockControllerAddr = await ethLp.owner();
+  timelockController = new ethers.Contract(timelockControllerAddr, timelockControllerABI, provider);
+  timelockController = timelockController.connect(signer);
 };
 
-u('#tabTraderOps').handle('click', async (e) => {
-  u('#tabTraderOps').addClass('is-active');
-  u('#tabOwnerOps').removeClass('is-active');
-  u('#secTraderOps').removeClass('is-hidden');
-  u('#secOwnerOps').addClass('is-hidden');
-});
-u('#tabOwnerOps').handle('click', async (e) => {
-  u('#tabOwnerOps').addClass('is-active');
-  u('#tabTraderOps').removeClass('is-active');
-  u('#secOwnerOps').removeClass('is-hidden');
-  u('#secTraderOps').addClass('is-hidden');
-});
+// ---------- info ----------
 
-u('#approveSTBTtoLPBtn').handle('click', async (e) => {
-  approveAmount
-  var erc20 = new ethers.Contract(stbtAddress, erc20ABI, provider);
-  erc20 = erc20.connect(signer);
-  const amount = u('#approveAmount').first().value;
-  await erc20.approve(lpContractAddr, amount);
-});
+u('#getBasicInfoBtn').handle('click', async (e) => {
+  console.log('getBasicInfo');
+  const paused = await ethLp.paused();
+  u('#infoPaused').first().value = paused ? 'yes' : 'no';
 
-u('#getInfoBtn').handle('click', async (e) => {
-  var result = ""
-  console.log("lp:", lp);
-  console.log(u('#info'));
-  console.log(u('#info').first());
-  const impl = await provider.getStorageAt(lpContractAddr, "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc");
-  result += "Implementation Address:" + impl + "\n";
-  const stbt = await lp.stbt(); 
-  result += "STBT Address:" + stbt + "\n";
-  const stbtMinter = await lp.stbtMinter(); 
-  result += "STBT Minter Address:" + stbtMinter + "\n";
-  const usdvMinterProxy = await lp.usdvMinterProxy(); 
-  result += "USDV Minter Proxy Address:" + usdvMinterProxy + "\n";
-  const dssPsm = await lp.dssPsm(); 
-  result += "DSSPSM Address:" + dssPsm + "\n";
-  const curve3pool = await lp.curve3pool(); 
-  result += "CURVE 3Pool Address:" + curve3pool + "\n";
-  const dai = await lp.dai(); 
-  result += "DAI Address:" + dai + "\n";
-  const usdc = await lp.usdc(); 
-  result += "USDC Address:" + usdc + "\n";
-  const usdt = await lp.usdt(); 
-  result += "USDT Address:" + usdt + "\n";
-  const lpEOA = await lp.lp(); 
-  result += "LP Address:" + lpEOA + "\n";
-  const pauser = await lp.pauser(); 
-  result += "Pauser Address:" + pauser + "\n";
-  const owner = await lp.owner(); 
-  result += "Owner Address:" + owner + "\n";
-  const supportedTokens = await lp.getSupportedTokens(); 
-  result += "Supported Address:" + supportedTokens + "\n";
+  const lpAddr = await ethLp.lp();
+  u('#infoLpAddr').first().value = lpAddr;
 
-  for(const token of supportedTokens) {
-    const erc20 = new ethers.Contract(token, erc20ABI, provider);
-    const balance = await erc20.balanceOf(lpContractAddr)
-    const symbol = await erc20.symbol()
-    result += "balance of " + symbol + " " + token + " : " + balance + "\n";
+  const lpOwner = await ethLp.owner();
+  u('#infoLpOwner').first().value = lpOwner;
+
+  const operatorAddr = await ethLp.operator();
+  u('#infoOperatorAddr').first().value = operatorAddr;
+
+  const stbtAddr = await ethLp.stbt();
+  u('#infoStbtAddr').first().value = stbtAddr;
+
+  const stbtMinter = await ethLp.stbtMinter();
+  u('#infoStbtMinterAddr').first().value = stbtMinter;
+
+  const usdvMinterProxyAddr = await ethLp.usdvMinterProxy();
+  u('#infoUsdvMinterProxyAddr').first().value = usdvMinterProxyAddr;
+  if(usdvMinterProxyAddr != minterProxyAddr) alert("minter proxy is not "+minterProxyAddr);
+
+  const usdvMinterProxyOwner = await minterProxy.owner();
+  u('#infoUsdvMinterProxyOwner').first().value = usdvMinterProxyOwner;
+
+  const codehashes = await minterProxy.getMinterCodeHashes();
+  var value = ""
+  for(const codehash of codehashes) {
+    value += codehash.toHexString();
   }
-  const erc20 = new ethers.Contract(stbt, erc20ABI, provider);
-  const balance = await erc20.balanceOf(lpContractAddr)
-  result += "balance of STBT : " + balance + "\n";
+  console.log(codehashes)
+  u('#infoRegisteredCodeHashes').first().value = value;
 
-  console.log(result);
-  u('#info').text(result);
+  const impl = await getAddrAtSlot(ethLpAddr, "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc");
+  const admin = await getAddrAtSlot(ethLpAddr, "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103");
+  u('#infoEthLpImpl').first().value = impl;
+  u('#infoProxyAdminAddr').first().value = admin;
+
+  const proxyAdmin = new ethers.Contract(admin, proxyAdminABI, provider);
+  const proxyAdminOwner = await proxyAdmin.owner();
+  u('#infoProxyAdminOwner').first().value = proxyAdminOwner;
 });
 
-u('#stbtWhitelistBtn').handle('click', async (e) => {
-  const stbtContract = new ethers.Contract(stbtAddress, stbtABI, provider);
-  const addr = u('#queriedAddr').first().value;
-  const {sendAllowed, receiveAllowed, expiryTime} = await stbtContract.permissions(addr);
-  var result = "Address: "+addr+"\n";
-  result += "sendAllowed "+sendAllowed+" receiveAllowed "+receiveAllowed;
-  result += " expire "+expiryTime;
-  u('#stbtWhitelist').text(result);
+u('#getAllTokensBtn').handle('click', async (e) => {
+  console.log('getSupportedTokens');
+
+  // u('#getAllTokensBtn').first().disabled = true;
+  u('#allTokenRows').empty();
+
+  const allTokens = await ethLp.getAllTokens();
+  console.log('allTokens:', allTokens);
+
+  const tokenConfigs = [];
+  for (let token of allTokens) {
+    const cfg = await ethLp.tokenConfigs(token);
+    tokenConfigs.push(cfg);
+    console.log('cfg:', cfg);
+  }
+
+  for (let i = 0; i < allTokens.length; i++) {
+    const token = allTokens[i];
+    const erc20 = new ethers.Contract(token, erc20ABI, provider);
+    const symbol = await erc20.symbol();
+    const cfg = tokenConfigs[i];
+
+    u('#allTokenRows').append(
+`<tr>
+  <td>${symbol}</td>
+  <td><code>${token}</code></td>
+  <td>${cfg.paused}</td>
+  <td>${cfg.feeBps}</td>
+  <td>${cfg.rewardBps}</td>
+  <td>${cfg.receiver}</td>
+  <td><code>${cfg.overflowAction}</code></td>
+  <td>${cfg.balanceCap}</td>
+  <td>${cfg.mul}</td>
+  <td>${cfg.endOfService}</td>
+</tr>`
+    );
+  }
 });
 
-u('#getTokenInfoBtn').handle('click', async (e) => {
-  var result = ""
-  const addr = u('#tokenAddr').first().value
-  const rewardBps = await lp.rewardBpsMap(addr); 
-  result += "Reward BPS:" + rewardBps + "\n";
-  const {mul, endOfService, balanceCap} = await lp.noFeeCoinMap(addr); 
-  result += "EndOfService:" + endOfService + "\n";
-  result += "Balance Cap:" + balanceCap + "\n";
-  const paused = await lp.pausedTokens(addr); 
-  result += "Paused:" + paused + "\n";
-  console.log(result);
-  u('#tokenInfo').text(result);
+u('#queryMinterByColorBtn').handle('click', async (e) => {
+  const color = u('#queryColorIn').first().value;
+  const minter = await minterProxy.colorToMinter(color);
+  u('#queryMinterOut').first().value = minter
 });
 
-u('#swapToSTBTBtn').handle('click', async (e) => {
-  const addr = u('#swapFromToken').first().value
-  const fromTokenAmount = u('#fromTokenAmount').first().value
-  const minAmountOut = u('#minAmountOut').first().value
-  await lp.swapToSTBT(addr, fromTokenAmount, minAmountOut); 
+u('#queryColorByMinterBtn').handle('click', async (e) => {
+  const minter = u('#queryMinterIn').first().value;
+  const color = await minterProxy.minterToColor(minter);
+  u('#queryColorOut').first().value = color
 });
 
-u('#getSwapToSTBTAmountOutBtn').handle('click', async (e) => {
-  const addr = u('#swapFromToken').first().value
-  const fromTokenAmount = u('#fromTokenAmount').first().value
-  const out = await lp.getSwapToSTBTAmountOut(addr, fromTokenAmount); 
-  console.log(out);
-  u('#STBTAmountOut').text(out)
+// ---------- owner ----------
+
+u('#getLpBtn').handle('click', async (e) => {
+  console.log('getLP');
+  const lpAddr = await ethLp.lp();
+  console.log('lpAddr:', lpAddr);
+  u('#setLpAddr').first().value = lpAddr;
 });
-
-
-u('#pauseTokenBtn').handle('click', async (e) => {
-  const addr = u('#pausedTokenAddr').first().value
-  await lp.pauseToken(addr); 
-});
-
-u('#setRewardBpsBtn').handle('click', async (e) => {
-  const addr = u('#rewardTokenAddr').first().value
-  const bps = u('#rewardBPS').first().value
-  await lp.setRewardBps(addr, bps); 
-});
-
 u('#setLpBtn').handle('click', async (e) => {
-  const addr = u('#lpAddr').first().value
-  await lp.setLp(addr); 
+  console.log('setLp');
+  const addr = u('#setLpAddr').first().value;
+  console.log('addr:', addr);
+  const data = ethLp.interface.encodeFunctionData('setLp', [addr]);
+  console.log('data:', data);
+  console.log(decodeCalldata(ethLp.address, data));
+  await timelockController.schedule(ethLp.address, 0, data, ZERO, ZERO, DELAY); 
 });
 
-u('#addNoFeeCoinBtn').handle('click', async (e) => {
-  const addr = u('#noFeeCoinAddr').first().value
-  const endOfService = u('#endOfService').first().value
-  const balanceCap = u('#balanceCap').first().value
-  await lp.addNoFeeCoin(addr, endOfService, balanceCap); 
+u('#getOperatorBtn').handle('click', async (e) => {
+  console.log('getOperator');
+  const operatorAddr = await ethLp.operator();
+  console.log('operatorAddr:', operatorAddr);
+  u('#setOperatorAddr').first().value = operatorAddr;
+});
+u('#setOperatorBtn').handle('click', async (e) => {
+  console.log('setOperator');
+  const addr = u('#setOperatorAddr').first().value;
+  console.log('addr:', addr);
+  const data = ethLp.interface.encodeFunctionData('setOperator', [addr]);
+  console.log('data:', data);
+  console.log(decodeCalldata(ethLpAddr, data));
+  await timelockController.schedule(ethLp.address, 0, data, ZERO, ZERO, DELAY); 
 });
 
-u('#addNoFeeCoinBtn').handle('click', async (e) => {
-  const addr = u('#removeNoFeeCoinAddr').first().value
-  await lp.removeNoFeeCoin(addr); 
-});
+u('#addTokenBtn').handle('click', async (e) => {
+  console.log('addToken');
 
-u('#setPausedBtn').handle('click', async (e) => {
-  const b = u('#pauseBool').first().value
-  await lp.setPaused(b); 
+  const tokenAddr = u('#addTokenAddr').first().value;
+  console.log('tokenAddr:', tokenAddr);
+
+  const cap = u('#addTokenCap').first().value;
+  console.log('cap:', cap);
+
+  const feeBps = u('#addTokenFeeBps').first().value;
+  console.log('feeBps:', feeBps);
+
+  const rewardBps = u('#addTokenRewardBps').first().value;
+  console.log('rewardBps:', rewardBps);
+
+  const receiver = u('#addTokenReceiver').first().value;
+  console.log('receiver:', receiver);
+
+  const withdrawToReceiver = u('#addTokenWithdrawToReceiver').first().value;
+  const overflowAction = withdrawToReceiver=="yes" ? 1 : 0;
+  console.log('overflowAction:', overflowAction);
+
+  const endOfService = u('#addTokenEndOfService').first().value;
+  console.log('endOfService:', endOfService);
+
+  const data = ethLp.interface.encodeFunctionData('addToken', [tokenAddr, receiver, [endOfService, cap, feeBps, rewardBps, false, overflowAction]]);
+  console.log('data:', data);
+  console.log(decodeCalldata(ethLpAddr, data));
+  await timelockController.schedule(ethLp.address, 0, data, ZERO, ZERO, DELAY); 
 });
 
 u('#withdrawTokenBtn').handle('click', async (e) => {
-  const addr = u('#withdrawTokenAddr').first().value
-  const amount = u('#withdrawAmount').first().value
-  await lp.withdrawToken(addr, amount); 
+  console.log('withdrawToken');
+  const addr = u('#withdrawTokenAddr').first().value;
+  const amt = u('#withdrawTokenAmt').first().value;
+  console.log(addr, amt);
+  const data = ethLp.interface.encodeFunctionData('withdrawToken', [addr, amt]);
+  console.log('data:', data);
+  console.log(decodeCalldata(ethLpAddr, data));
+  await timelockController.schedule(ethLp.address, 0, data, ZERO, ZERO, DELAY); 
 });
 
-u('#depositSTBTBtn').handle('click', async (e) => {
-  const amount = u('#depositAmount').first().value
-  await lp.depositSTBT(amount); 
+u('#transferOwnershipBtn').handle('click', async (e) => {
+  console.log('transferOwnership');
+  const addr = u('#newOwnerAddr').first().value;
+  await ethLp.transferOwnership(addr);
 });
 
-u('#setPauserBtn').handle('click', async (e) => {
-  const addr = u('#pauserAddr').first().value
-  await lp.setPauser(addr); 
+// ----------- operator ----------------
+
+u('#getPausedBtn').handle('click', async (e) => {
+  console.log('getPaused');
+  const paused = await ethLp.paused();
+  console.log('paused:', paused);
+  alert('paused: '+paused);
+});
+u('#setPausedBtn').handle('click', async (e) => {
+  console.log('setPaused');
+  const flag = u('#setPausedFlag').first().checked;
+  console.log('flag:', flag);
+  await ethLp.setPaused(flag);
+  // console.log(await ethLp.callStatic.setPaused(flag, {from: OPERATOR})); //TEMP
+});
+
+u('#getTokenCfgBtn').handle('click', async (e) => {
+  console.log('getTokenCfg');
+  const tokenAddr = u('#cfgTokenAddr').first().value;
+  const cfg = await ethLp.tokenConfigs(tokenAddr);
+  console.log(tokenAddr, cfg);
+
+  const [mul, endOfService, cap, feeBps, rewardBps, paused, overflowAction, receiver] = cfg;
+  u('#cfgTokenCap').first().value = cap;
+  u('#cfgTokenFeeBps').first().value = feeBps;
+  u('#cfgTokenRewardBps').first().value = rewardBps;
+  u('#cfgTokenPaused').first().checked = paused;
+  u('#cfgTokenWithdrawToReceiver').first().checked = overflowAction;
+  u('#cfgTokenEndOfService').first().checked = endOfService;
+});
+u('#setTokenCfgBtn').handle('click', async (e) => {
+  console.log('setTokenCfg');
+  const tokenAddr = u('#cfgTokenAddr').first().value;
+  const cap = u('#cfgTokenCap').first().value;
+  const feeBps = u('#cfgTokenFeeBps').first().value;
+  const rewardBps = u('#cfgTokenRewardBps').first().value;
+  const paused = u('#cfgTokenPaused').first().checked;
+  const overflowAction = u('#cfgTokenWithdrawToReceiver').first().value=="yes" ? 1 : 0;
+  const endOfService = u('#cfgTokenEndOfService').first().value;
+  console.log('tokenAddr:', tokenAddr);
+  console.log('cap:', cap);
+  console.log('feeBps:', feeBps);
+  console.log('rewardBps:', rewardBps);
+  console.log('paused:', paused);
+  console.log('overflowAction:', overflowAction);
+  console.log('endOfService:', endOfService);
+  await ethLp.setTokenConfig(tokenAddr, [endOfService, cap, feeBps, rewardBps, paused, overflowAction]);
+  // console.log(await ethLp.callStatic.setTokenConfig(tokenAddr, [endOfService, cap, feeBps, rewardBps, paused, overflowAction], {from: OPERATOR})); //TEMP
+});
+
+u('#depositStbtBtn').handle('click', async (e) => {
+  console.log('depositStbt');
+  const amt = u('#depositStbtAmt').first().value;
+  console.log('amt:', amt);
+  await ethLp.depositSTBT(amt);
+  // console.log(await ethLp.callStatic.depositSTBT(amt, {from: OPERATOR})); //TEMP
+});
+
+"function addMinterCodeHash(uint _hash) external",
+u('#addMinterCodeHashBtn').handle('click', async (e) => {
+  console.log('addMinterCodeHash');
+  const codehash = u('#minterCodeHashToAdd').first().value;
+  console.log('codehash:', codehash);
+  await minterProxy.addMinterCodeHash(codehash);
+  // console.log(await minterProxy.callStatic.addMinterCodeHash(codehash, {from: MPOWNER})); //TEMP
+});
+
+u('#removeMinterCodeHashBtn').handle('click', async (e) => {
+  console.log('remvoeMinterCodeHash');
+  const codehash = u('#minterCodeHashToRemove').first().value;
+  console.log('codehash:', codehash);
+  await minterProxy.removeMinterCodeHash(codehash);
+  // console.log(await minterProxy.callStatic.removeMinterCodeHash(codehash, {from: MPOWNER})); //TEMP
+});
+
+u('#registerMinterBtn').handle('click', async (e) => {
+  console.log('registerMinter');
+  const addr = u('#minterAddressToRegister').first().value;
+  console.log('addr:', addr);
+  await minterProxy.registerMinter(addr);
+  // console.log(await minterProxy.callStatic.registerMinter(addr, {from: MPOWNER})); //TEMP
+});
+
+u('#unregisterMinterBtn').handle('click', async (e) => {
+  console.log('unregisterMinter');
+  const addr = u('#minterAddressToUnregister').first().value;
+  console.log('addr:', addr);
+  await minterProxy.unregisterMinter(addr);
+  // console.log(await minterProxy.callStatic.unregisterMinter(addr, {from: MPOWNER})); //TEMP
+});
+
+u('#setToSTBTLpBtn').handle('click', async (e) => {
+  console.log('setToSTBTLpBtn');
+  const addr = u('#ethereumLPAddress').first().value;
+  console.log('addr:', addr);
+  await minterProxy.setToSTBTLp(addr);
+  // console.log(await minterProxy.callStatic.setToSTBTLp(addr, {from: MPOWNER})); //TEMP
+});
+
+// ---------- trader ----------
+
+u('#getUsdvOutBtn').handle('click', async (e) => {
+  console.log('getUsdvOut');
+  const addr = u('#getUsdvOutAddr').first().value;
+  const amt = u('#getUsdvOutAmt').first().value;
+  const verbose = u('#getUsdvOutVerbose').first().checked;
+  console.log(addr, amt, verbose);
+
+  const out1 = await ethLp.getUSDVOut(addr, amt);
+  const out2 = await ethLp.getUSDVOutVerbose(addr, amt);
+  console.log(out1, out2);
+  const out = verbose 
+    ? ({requestedOut: out2[0], rewardOut: out2[1]})
+    : ({usdvOut: out1});
+
+  u('#getUsdvOutOut').first().value = JSON.stringify(out);
+});
+
+u('#approveBtn').handle('click', async (e) => {
+  console.log('approve');
+  const token = u('#approveTokenAddr').first().value;
+  const amt = u('#approveAmt').first().value;
+  console.log(token, amt);
+
+  let erc20 = new ethers.Contract(token, erc20ABI, provider);
+  erc20 = erc20.connect(signer);
+  // await erc20.approve(ethLp.address, amt);
+});
+
+u('#swapBtn').handle('click', async (e) => {
+  console.log('swap');
+  const fromToken = u('#swapFromToken').first().value;
+  const inAmt = u('#fromInAmt').first().value;
+  const minOutAmt = u('#swapMinOutAmt').first().value;
+  const receiver = u('#swapReceiver').first().value;
+  console.log(fromToken, inAmt, minOutAmt, receiver);
+  // await ethLp.swapToUSDV(fromToken, inAmt, minOutAmt, receiver);
+});
+
+// ------------ TimelockController ----------
+
+let pendingTXs = [];
+
+u('#viewTxsBtn').handle('click', async (e) => {
+    console.log("click viewTxsBtn")
+    u('#txsRows').empty();
+    pendingTXs = [];
+    const height = await provider.getBlockNumber();
+    console.log("height: ", height);
+    await collectPendingTxs(timelockController, height-7*24*360, height);
+});
+
+async function collectPendingTxs(contract, fromBlock, toBlock) {
+    const events = await contract.queryFilter("*", fromBlock, toBlock);
+    // console.log(events)
+    for (let event of events) {
+        if (event.event == 'CallScheduled') {
+            console.log("Find CallScheduled event");
+            let tx = {
+                "txid": event.transactionHash,
+                "id": event.args[0],
+                "target": event.args[2],
+                "value": event.args[3].toString(),
+                "data": event.args[4],
+                "predecessor": event.args[5],
+                "delay":event.args[6].toString(),
+                "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            };
+            console.log(JSON.stringify(tx));
+            pendingTXs.push(tx);
+        } else if (event.event == 'CallSalt') {
+            if (event.transactionHash == pendingTXs[pendingTXs.length - 1].txid) {
+                pendingTXs[pendingTXs.length - 1].salt = event.args[1];
+                console.log("find callSalt")
+                console.log(JSON.stringify(pendingTXs[pendingTXs.length - 1]));
+            }
+        }
+    }
+    for (const tx of pendingTXs) {
+        const i = pendingTXs.indexOf(tx);
+        const t = decodeCalldata(tx.target, tx.data);
+        console.log(t);
+
+        let isPending = await timelockController.isOperationPending(tx.id);
+        console.log("pending status:", isPending);
+        let isReady = await timelockController.isOperationReady(tx.id);
+        console.log("ready status:", isReady);
+        if (isPending === true) {
+            u('#txsRows').append(`
+            <tr style="font-size: 12px">
+              <td><abbr title="${tx.target}">${tx.target.substring(0, 20)}</abbr></td>
+              <td>${tx.value}</td>
+              <td><abbr title="${tx.predecessor}">${tx.predecessor.substring(0, 6)}</abbr></td>
+              <td><abbr title="${tx.salt}">${tx.salt.substring(0, 6)}</abbr></td>
+              <td>${tx.delay}</td>
+              <td>${JSON.stringify(t)}</td>
+              <td><button class="button is-link" disabled=` + isReady  + ` onclick="execBtnHandle(this.id)" id="execBtn` + tx.id + `">execute</button></td>
+              <td><button class="button is-link" onclick="cancelBtnHandle(this.id)" id="cancelBtn` + tx.id + `">cancel</button></td>
+              </tr>`);
+        }
+    }
+}
+window.execBtnHandle = async function (clickID) {
+    console.log("click execBtn of:", clickID);
+    let tx = pendingTXs.find((tx) => tx.id === clickID.slice(7,))
+    console.log(tx);
+    try {
+        await timelockController.execute(tx.target, tx.value, tx.data, tx.predecessor, tx.salt);
+    } catch (e) {
+        console.log(e);
+    }
+}
+window.cancelBtnHandle = async function (clickID) {
+    console.log("click cancelBtn of:", clickID);
+    let tx = pendingTXs.find((tx) => tx.id === clickID.slice(9,))
+    console.log(tx);
+    try {
+        await timelockController.cancel(tx.id);
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+// ---------- Calldata ----------
+
+u('#decodeCdBtn').handle('click', async (e) => {
+  console.log('decodeCalldata');
+  const addr = u('#decodeCdAddr').first().value;
+  const data = u('#decodeCdData').first().value;
+  console.log(addr, data);
+
+  const result = decodeCalldata(addr, data);
+  console.log(result);
+  u('#decodeCdResult').first().value = result;
 });
 
   </script>
   </body>
 </html>
-  const erc20 = new ethers.Contract("", erc20ABI, provider);

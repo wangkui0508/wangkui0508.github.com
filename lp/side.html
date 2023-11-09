@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sidechain LP Frontend</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  </head>
+  <body>
+
+  <div class="box">
+    <div class="control">
+      <button class="button is-link" id="connectBtn">Connect</button>
+      <span id="addressHeader" style="font-size:14pt">---</span>
+    </div>
+  </div>
+
+  <section class="section">
+    <h1 class="title">Sidechain LP Frontend</h1>
+    <div class="tabs">
+      <ul>
+        <li id="tabInfo" class="is-active"><a>Info</a></li>
+        <li id="tabOwnerOps"><a>Owner Ops</a></li>
+        <li id="tabOperatorOps"><a>Operator Ops</a></li>
+        <li id="tabSwapOps"><a>Swap Ops</a></li>
+        <li id="tabMinterOps"><a>Minter Ops</a></li>
+        <li id="tabTimelockOps"><a>Timelock Ops</a></li>
+        <li id="tabCalldata"><a>Calldata Decoder</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="secInfo" class="section">
+    <div class="panel is-link">
+      <p class="panel-heading">Proxy Info</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Implementation Address</label>
+          <input class="input" type="input" id="proxyImplAddr" readonly />
+        </div>
+        <div class="field">
+          <label class="label">Proxy Admin Address</label>
+          <input class="input" type="input" id="proxyAdminAddr" readonly />
+        </div>
+        <div class="field">
+          <label class="label">Proxy Admin Owner Address</label>
+          <input class="input" type="input" id="proxyAdminOwnerAddr" readonly />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="getProxyInfoBtn">Refresh</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Basic Info</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">paused?</label>
+          <input class="input" type="input" id="infoPaused" readonly />
+        </div>
+        <div class="field">
+          <label class="label">Owner Address</label>
+          <input class="input" type="input" id="infoOwnerAddr" readonly />
+        </div>
+        <div class="field">
+          <label class="label">Operator Address</label>
+          <input class="input" type="input" id="infoOpAddr" readonly />
+        </div>
+        <div class="field">
+          <label class="label">LP Address</label>
+          <input class="input" type="input" id="infoLpAddr" readonly />
+        </div>
+        <div class="field">
+          <label class="label">USDV Address</label>
+          <input class="input" type="input" id="infoUsdvAddr" readonly />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="getBasicInfoBtn">Refresh</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Tokens Info</p>
+      <div class="box">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Index</th>
+                <th>Address</th>
+                <th>Enabled</th>
+                <th>FeeBps</th>
+                <th>RewardBps</th>
+                <th>Receiver</th>
+                <th>Cap</th>
+                <th>Div</th>
+              </tr>
+            </thead>
+            <tbody id="allTokenRows">
+            </tbody>
+          </table>
+        </div>
+        <div class="control">
+          <button class="button is-link" id="getSupportedTokensBtn">Refresh</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="secOwnerOps" class="section is-hidden">
+
+    <div class="panel is-link">
+      <p class="panel-heading">Set LP</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">LP Address</label>
+          <input class="input" type="text" id="setLpAddr" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="getLpBtn">Query</button>
+          <!-- <button class="button is-link" id="setLpBtn">Submit</button> -->
+          <button class="button is-link" id="setLpSchBtn">Schedule</button>
+          <!-- <button class="button is-link" id="setLpExeBtn">Execute</button> -->
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Set Operator</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Operator Address</label>
+          <input class="input" type="text" id="setOpAddr" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="getOpBtn">Query</button>
+          <!-- <button class="button is-link" id="setOpBtn">Submit</button> -->
+          <button class="button is-link" id="setOpSchBtn">Schedule</button>
+          <!-- <button class="button is-link" id="setOpExeBtn">Execute</button> -->
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Add Token</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Token Address</label>
+          <input class="input" type="text" id="addTokenAddr" />
+        </div>
+        <div class="field">
+          <label class="label">Cap</label>
+          <input class="input" type="text" id="addTokenCap" />
+        </div>
+        <div class="field">
+          <label class="label">FeeBps</label>
+          <input class="input" type="text" id="addTokenFeeBps" />
+        </div>
+        <div class="field">
+          <label class="label">RewardBps</label>
+          <input class="input" type="text" id="addTokenRewardBps" />
+        </div>
+        <div class="field">
+          <label class="label">Receiver</label>
+          <input class="input" type="text" id="addTokenReceiver" />
+        </div>
+        <div class="control">
+          <!-- <button class="button is-link" id="addTokenBtn">Submit</button> -->
+          <button class="button is-link" id="addTokenSchBtn">Schedule</button>
+          <!-- <button class="button is-link" id="addTokenExeBtn">Execute</button> -->
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Remove Token</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Token Address</label>
+          <input class="input" type="text" id="delTokenAddr" />
+        </div>
+        <div class="control">
+          <!-- <button class="button is-link" id="delTokenBtn">Submit</button> -->
+          <button class="button is-link" id="delTokenSchBtn">Schedule</button>
+          <!-- <button class="button is-link" id="delTokenExeBtn">Execute</button> -->
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Withdraw Token</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Token Address</label>
+          <input class="input" type="text" id="withdrawTokenAddr" />
+        </div>
+        <div class="field">
+          <label class="label">Amount</label>
+          <input class="input" type="text" id="withdrawTokenAmt" />
+        </div>
+        <div class="control">
+          <!-- <button class="button is-link" id="withdrawTokenBtn">Submit</button> -->
+          <button class="button is-link" id="withdrawTokenSchBtn">Schedule</button>
+          <!-- <button class="button is-link" id="withdrawTokenExeBtn">Execute</button> -->
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <section id="secOperatorOps" class="section is-hidden">
+
+    <div class="panel is-link">
+      <p class="panel-heading">Paused</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Paused</label>
+          <input class="checkbox" type="checkbox" id="setPausedFlag" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="getPausedBtn">Query</button>
+          <button class="button is-link" id="setPausedBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Config Token</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Token Address</label>
+          <input class="input" type="text" id="cfgTokenAddr" />
+        </div>
+        <div class="field">
+          <label class="label">Cap</label>
+          <input class="input" type="text" id="cfgTokenCap" />
+        </div>
+        <div class="field">
+          <label class="label">FeeBps</label>
+          <input class="input" type="text" id="cfgTokenFeeBps" />
+        </div>
+        <div class="field">
+          <label class="label">RewardBps</label>
+          <input class="input" type="text" id="cfgTokenRewardBps" />
+        </div>
+        <div class="field">
+          <label class="label">Enabled</label>
+          <input class="checkbox" type="checkbox" id="cfgTokenEnabled" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="getTokenCfgBtn">Query</button>
+          <button class="button is-link" id="setTokenCfgBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Whitelist</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Address</label>
+          <input class="input" type="text" id="whitelistAddr" />
+        </div>
+        <div class="field">
+          <label class="label">Enabled</label>
+          <input class="checkbox" type="checkbox" id="whitelistFlag" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="getWhitelistBtn">Query</button>
+          <button class="button is-link" id="setWhitelistBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Deposit USDV</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Amount</label>
+          <input class="input" type="text" id="depositUsdvAmt" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="depositUsdvBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <section id="secSwapOps" class="section is-hidden">
+
+    <div class="panel is-link">
+      <p class="panel-heading">Get USDV Out</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">From Token</label>
+          <input class="input" type="text" id="getUsdvOutAddr" />
+        </div>
+        <div class="field">
+          <label class="label">Amount</label>
+          <input class="input" type="text" id="getUsdvOutAmt" />
+        </div>
+        <div class="field">
+          <label class="label">Verbose</label>
+          <input class="checkbox" type="checkbox" id="getUsdvOutVerbose" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="getUsdvOutBtn">Query</button>
+        </div>
+        <br/>
+        <div class="field">
+          <label class="label">Out</label>
+          <textarea class="textarea"id="getUsdvOutOut" readonly></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Approve Token to LP Contract</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Token Address</label>
+          <input class="input" type="text" id="approveTokenAddr" />
+        </div> 
+        <div class="field">
+          <label class="label">Amount</label>
+          <input class="input" type="text" id="approveAmt" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="approveBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Swap To USDV</p>
+      <div class="box"> 
+        <div class="field">
+          <label class="label">From Token</label>
+          <input class="input" type="text" id="swapFromToken" />
+        </div> 
+        <div class="field">
+          <label class="label">In Amount</label>
+          <input class="input" type="text" id="fromInAmt" />
+        </div> 
+        <div class="field">
+          <label class="label">Minimum Out Amount</label>
+          <input class="input" type="text" id="swapMinOutAmt" />
+        </div> 
+        <div class="field">
+          <label class="label">Receiver</label>
+          <input class="input" type="text" id="swapReceiver" />
+        </div> 
+        <div class="control">
+          <button class="button is-link" id="swapBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <section id="secMinterOps" class="section is-hidden">
+
+    <div class="panel is-link">
+      <p class="panel-heading">Swap to USDV and Send</p>
+      <div class="box"> 
+        <div class="field">
+          <label class="label">SwapParam: From Token Address</label>
+          <input class="input" type="text" id="swapAndSendFromAddr" />
+        </div>
+        <div class="field">
+          <label class="label">SwapParam: From Token Amount</label>
+          <input class="input" type="text" id="swapAndSendFromAmt" />
+        </div>
+        <div class="field">
+          <label class="label">SwapParam: Min USDV Out</label>
+          <input class="input" type="text" id="swapAndSendMinOut" />
+        </div>
+        <div class="field">
+          <label class="label">USDV Receiver Address</label>
+          <input class="input" type="text" id="swapAndSendReceiverAddr" />
+        </div>
+        <div class="field">
+          <label class="label">DST EID</label>
+          <input class="input" type="text" id="swapAndSendDstEid" />
+        </div>
+        <div class="field">
+          <label class="label">Extra Options</label>
+          <input class="input" type="text" id="swapAndSendOps" />
+        </div>
+        <div class="field">
+          <label class="label">MsgFee: Native Fee</label>
+          <input class="input" type="text" id="swapAndSendNativeFee" />
+        </div>
+        <div class="field">
+          <label class="label">MsgFee: LZ Token Fee</label>
+          <input class="input" type="text" id="swapAndSendLzTokenFee" />
+        </div>
+        <div class="field">
+          <label class="label">Refund Address</label>
+          <input class="input" type="text" id="swapAndSendRefundAddr" />
+        </div>
+        <div class="field">
+          <label class="label">Color</label>
+          <input class="input" type="text" id="swapAndSendColor" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="swapAndSendBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="section is-hidden" id="secTimelockOps">
+    <div class="panel is-link">
+      <table class="table" style="margin-top: -50px">
+          <thead class="panel-heading">
+          <tr>
+              <th width="95%"><p style="font-size: 1.318em">Pending Txs:</p></th>
+              <th><button class="button" id="viewTxsBtn">Refresh</button></th>
+          </tr>
+          </thead>
+      </table>
+      <table class="table" style="margin-top: 20px">
+          <thead>
+          <tr>
+              <th width="10%">target</th>
+              <th width="3%">value</th>
+              <th width="3%">predecessor</th>
+              <th width="3%">salt</th>
+              <th width="3%">delay</th>
+              <th width="35%">data decoded</th>
+              <th width="3%">execute button</th>
+              <th width="3%">cancel button</th>
+          </tr>
+          </thead>
+          <tbody id="txsRows">
+          </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="secCalldata" class="section is-hidden">
+    <div class="panel is-link">
+      <p class="panel-heading">Decode Calldata</p>
+      <div class="box"> 
+        <div class="field">
+          <label class="label">Target Address</label>
+          <input class="input" type="text" id="decodeCdAddr" />
+        </div>
+        <div class="field">
+          <label class="label">Calldata</label>
+          <textarea class="textarea"id="decodeCdData" placeholder="0x"></textarea>
+        </div>
+        <div class="control">
+          <button class="button is-link" id="decodeCdBtn">Decode</button>
+        </div>
+        <br/>
+        <div class="field">
+          <textarea class="textarea"id="decodeCdResult" readonly placeholder="decoded"></textarea>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script type="module">
+import { ethers } from "./ethers-5.4.esm.min.js";
+import u from './umbrella-3.3.0.esm.js';
+import { toast } from './bulma-toast.esm.js';
+
+const ZERO = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+const minterProxyAddr = '0x0000000000000000000000000000000000000009'; // todo
+
+const ethLpAddr  = '0xB9598ce5003c6F3f451fc0DE35fb9d0135c73d2E';
+const bscLpAddr  = '0x7F9A873cB57AF892e229b8EE445dde9372539fce';
+const avaxLpAddr = '0x728A036fBBF66FD7b09807a8d605c929B44bDF9E';
+const arbLpAddr  = '0x4607432711D0A26Bdb9DfF61A6Ab1d32780690d2';
+const opLpAddr   = '0x5cCFd72da5bd694CB6CD2919987Ced474F8E3Fb3';
+
+// TimeLock Controllers
+const bscTlAddr  = '0x0000000000000000000000000000000000000001'; // todo
+const avaxTlAddr = '0x0000000000000000000000000000000000000002'; // todo
+const arbTlAddr  = '0x0000000000000000000000000000000000000003'; // todo
+const opTlAddr   = '0x0000000000000000000000000000000000000004'; // todo
+
+
+/*
+stbt deployed to: 0x451bBE2844D10e8f3ec0aa874DE36C5E906c727E
+usdv deployed to: 0xEd87888C06a28FC2F99d1CdeB326a53D99168eeA
+ethereumLPImpl deployed to: 0xEc19C98c35d48dC856f178F3f5be5Fa91de34EAd
+sidechainLPImpl deployed to: 0x0D0AC7CD660018102A01d6e4117FE069e9B2B8F3
+deploy main chain TimelockController ...
+main chain TimelockController deployed to: 0x57FD4803c1e074B774465dE584033d338289c586
+deploy side chain TimelockController ...
+side chain TimelockController deployed to: 0x4dF2Ba2205B6dE76164A7E2beB991DC1A48D9524
+main chain ProxyAdmin deployed to: 0xcb71649002AEcbeb0b076D9f15d149A6DBEdA915
+side chain ProxyAdmin deployed to: 0xe247cCd23105576f30b768F555937c111b1bc6F6
+main chain Proxy deployed to: 0x0E66f2E0EA24210e42CB75998647EbcF61Dce1De
+side chain Proxy deployed to: 0x7aB478c36B5b2Bb58f0C38Ea2252dfD18e153f6d
+usdt：0x1A510CDB53Da97e7296857565672DCDF6f63C0D5
+usdc: 0xDf0360Ad8C5ccf25095Aa97ee5F2785c8d848620
+*/
+
+// testnets
+const goerliLpAddr = '0x7aB478c36B5b2Bb58f0C38Ea2252dfD18e153f6d'
+const goerliTlAddr = '0x4dF2Ba2205B6dE76164A7E2beB991DC1A48D9524'
+
+
+const ethLpABI = [
+  "function usdvMinterProxy() public view returns (address)",
+];
+
+const sideLpABI = [
+  // view
+  "function owner() public view returns (address)",
+  "function paused() public view virtual returns (bool)",
+  "function lp() public view returns (address)",
+  "function usdv() public view returns (address)",
+  "function operator() public view returns (address)",
+  "function whitelisted(address) public view returns (bool)",
+  "function getSupportedTokens() external view returns (address[])",
+  "function getAllTokens() external view returns (address[])",
+  "function tokenConfigs(address token) public view returns (tupple(bool, uint16, uint16, address, uint, uint))",
+  "function getUSDVOut(address, uint) public view returns (uint)",
+  "function getUSDVOutVerbose(address, uint) public view returns (uint, uint)",
+
+  // owner
+  "function setLp(address) external",
+  "function setOperator(address) external",
+  "function addToken(address _token, uint _cap, uint16 _feeBps, uint16 _rewardBps, address _receiver) external",
+  "function removeToken(address _token) external",
+  "function withdrawToken(address _token, uint _amount) external",
+
+  // operator
+  "function setPaused(bool _p) external",
+  "function configToken(address _token, uint _cap, uint16 _feeBps, uint16 _rewardBps, bool _enabled) external",
+  "function setWhitelist(address _user, bool _flag) external",
+  "function depositUSDV(uint _amount) external",
+
+  // whitelisted
+  "function swapToUSDV(address, uint256, uint64, address) external returns (uint)",
+];
+
+const erc20ABI = [
+  "function name() public view returns (string)",
+  "function symbol() public view returns (string)",
+  "function decimals() public view returns (uint8)",
+  "function totalSupply() public view returns (uint256)",
+  "function balanceOf(address _owner) public view returns (uint256 balance)",
+  "function transfer(address _to, uint256 _value) public returns (bool success)",
+  "function transferFrom(address _from, address _to, uint256 _value) public returns (bool success)",
+  "function approve(address _spender, uint256 _value) public returns (bool success)",
+  "function allowance(address _owner, address _spender) public view returns (uint256 remaining)",
+]
+
+const timelockABI = [
+  "event CallScheduled(bytes32 indexed id,uint256 indexed index,address target,uint256 value,bytes data,bytes32 predecessor,uint256 delay)",
+  "event CallSalt(bytes32 indexed id, bytes32 salt)",
+  "function cancel(bytes32 id) external",
+  "function schedule(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt, uint256 delay) external",
+  "function execute(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) external",
+  "function isOperationPending(bytes32 id) public view returns (bool)",
+  "function isOperationReady(bytes32 id) public view returns (bool)",
+];
+
+const ownableABI = [
+  "function owner() public view returns (address)",
+];
+
+const minterProxyABI = [
+  `
+    function swapToUSDVAndSend(
+        tupple(address, uint, uint64) _param,
+        bytes32 _usdvReceiver,
+        uint32 _dstEid,
+        bytes calldata _extraOptions,
+        tupple(uint256, uint256) _msgFee,
+        address payable _refundAddress,
+        uint32 _mintColor
+    ) external payable returns (uint usdvOut)
+  `
+];
+
+var provider;
+var signer;
+var myAddr;
+var sideLp;
+var sideTl;
+
+function getSideLpInfo(chainId) {
+  switch (Number(chainId)) {
+  case     5: return [goerliLpAddr, goerliTlAddr, 'GOERLI'];
+  case    10: return [opLpAddr,     opTlAddr,     'OP'    ];
+  case    58: return [bscLpAddr,    bscTlAddr,    'BSC'   ];
+  case 42161: return [arbLpAddr,    arbTlAddr,    'ARB'   ]; // ArbOne
+//case 42170: return [arbLpAddr,    arbTlAddr,    'ARB'   ]; // ArbNova
+  case 43114: return [avaxLpAddr,   avaxTlAddr,   'AXAX'  ];
+  default: throw "unsupported chain:" + chainId;
+  }
+}
+
+function decodeCalldata(addr, calldata) {
+  switch (addr) {
+  case bscLpAddr:
+  case avaxLpAddr:
+  case arbLpAddr:
+  case opLpAddr:
+  case goerliLpAddr:
+    return decodeCalldataWithIfc(sideLp.interface, calldata);
+  default:
+    return "Unknown Address";
+  }
+}
+
+function decodeCalldataWithIfc(ifc, calldata) {
+  for (const frag of ifc.fragments) {
+    const selector = ifc.getSighash(frag);
+    if (calldata.startsWith(selector)) {
+      return {
+        func: frag.name,
+        data: ifc.decodeFunctionData(frag, calldata),
+      };
+    }
+  }
+}
+
+// ---------- error ----------
+
+function showErr(err) {
+  toast({
+    message: '<code>' + JSON.stringify(err).replaceAll('\n', '<br/>') + '</code>',
+    type: 'is-warning',
+    dismissible: true,
+    duration: 10000,
+    // animate: { in: 'fadeIn', out: 'fadeOut' },
+  });
+}
+
+// window.onerror = function() { alert("Error caught"); };
+// window.addEventListener('error', function(event) { alert(event) })
+window.onunhandledrejection = event => { 
+  // Logs the error in the console 
+  // console.log(`UNHANDLED PROMISE REJECTION: ${event.reason}`); 
+  showErr({err: `UNHANDLED PROMISE REJECTION: ${event.reason}`});
+};
+
+// ---------- tabs ----------
+
+const tabIds = ['#tabInfo', '#tabSwapOps', '#tabOwnerOps', '#tabOperatorOps', '#tabMinterOps', '#tabTimelockOps', '#tabCalldata'];
+const secIds = ['#secInfo', '#secSwapOps', '#secOwnerOps', '#secOperatorOps', '#secMinterOps', '#secTimelockOps', '#secCalldata'];
+
+// handle tab switching
+for (const tabId of tabIds) {
+  const secId = tabId.replace('tab', 'sec');
+  u(tabId).handle('click', (e) => {
+    u(tabId).addClass('is-active');
+    u(secId).removeClass('is-hidden');
+    tabIds.filter(x => x != tabId).forEach(x => u(x).removeClass('is-active'));
+    secIds.filter(x => x != secId).forEach(x => u(x).addClass('is-hidden'));
+    window.location.hash = tabId;
+  });
+}
+
+console.log(window.location);
+const tabId = window.location.hash;
+if (tabId) {
+  u(tabId).trigger('click');
+}
+
+// ---------- connect button ----------
+
+u('#connectBtn').handle('click', connectWallet);
+document.onload = connectWallet;
+
+async function connectWallet(e) {
+  console.log(window.ethereum)
+  provider = new ethers.providers.Web3Provider(window.ethereum)
+  
+  await provider.send("eth_requestAccounts", []);
+  
+  signer = provider.getSigner();
+  myAddr = await signer.getAddress();
+  console.log('myAddr:', myAddr);
+  u("#addressHeader").text(myAddr);
+
+  const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+  console.log('chainId:', chainId);
+
+  const [sideLpAddr, sideTlAddr, chainName] = getSideLpInfo(chainId);
+  console.log(chainName);
+  console.log('sideLpAddr:', sideLpAddr);
+  console.log('sideTlAddr:', sideTlAddr);
+
+  sideLp = new ethers.Contract(sideLpAddr, sideLpABI, provider);
+  sideLp = sideLp.connect(signer);
+  console.log('sideLp:', sideLp);
+
+  sideTl = new ethers.Contract(sideTlAddr, timelockABI, provider);
+  sideTl = sideTl.connect(signer);
+  console.log('sideTl:', sideTl);
+
+  u("#addressHeader").text(`${myAddr}|${chainName}`);
+};
+
+// ---------- info ----------
+
+function getAddrAtSlot(contractAddr, slot) {
+  return provider.getStorageAt(contractAddr, slot)
+    .then(x => x.replace('0x000000000000000000000000', '0x'))
+}
+
+u('#getProxyInfoBtn').handle('click', async (e) => {
+  console.log('getProxyInfo, sideLp:', sideLp.address);
+  const implAddr = await getAddrAtSlot(sideLp.address,'0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc');
+  const adminAddr = await getAddrAtSlot(sideLp.address,'0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103');
+  console.log('impl:', implAddr, 'admin:', adminAddr);
+
+  const admin = new ethers.Contract(adminAddr, ownableABI, provider);
+  const adminOwnerAddr = await admin.owner();
+  console.log('adminOwner:', adminOwnerAddr);
+
+  u('#proxyImplAddr').first().value = implAddr;
+  u('#proxyAdminAddr').first().value = adminAddr;
+  u('#proxyAdminOwnerAddr').first().value = adminOwnerAddr;
+});
+
+u('#getBasicInfoBtn').handle('click', async (e) => {
+  console.log('getBasicInfo');
+  const paused = await sideLp.paused();
+  const ownerAddr = await sideLp.owner();
+  const opAddr = await sideLp.operator();
+  const lpAddr = await sideLp.lp();
+  const usdvAddr = await sideLp.usdv();
+
+  u('#infoPaused').first().value = paused ? 'yes' : 'no';
+  u('#infoOwnerAddr').first().value = ownerAddr;
+  u('#infoOpAddr').first().value = opAddr;
+  u('#infoLpAddr').first().value = lpAddr;
+  u('#infoUsdvAddr').first().value = usdvAddr;
+});
+
+u('#getSupportedTokensBtn').handle('click', async (e) => {
+  console.log('getSupportedTokens');
+
+  // u('#getSupportedTokensBtn').first().disabled = true;
+  u('#allTokenRows').empty();
+
+  const allTokens = await sideLp.getAllTokens();
+  console.log('allTokens:', allTokens);
+  // const supportedTokens = await sideLp.getSupportedTokens();
+  // console.log('supportedTokens:', supportedTokens);
+
+  const tokenConfigs = [];
+  for (let token of allTokens) {
+    const cfg = await sideLp.tokenConfigs(token);
+    tokenConfigs.push(cfg);
+    console.log('cfg:', cfg);
+  }
+
+  for (let i = 0; i < allTokens.length; i++) {
+    const token = allTokens[i];
+    const [enabled, feeBps, rewardBps, receiver, cap, div] = tokenConfigs[i];
+
+    u('#allTokenRows').append(
+`<tr>
+  <td>${i}</td>
+  <td><code>${token}</code></td>
+  <td>${enabled}</td>
+  <td>${feeBps}</td>
+  <td>${rewardBps}</td>
+  <td><code>${receiver}</code></td>
+  <td>${cap}</td>
+  <td>${div}</td>
+</tr>`
+    );
+  }
+});
+
+// ---------- owner ----------
+
+u('#getLpBtn').handle('click', async (e) => {
+  console.log('getLP');
+  const lpAddr = await sideLp.lp();
+  console.log('lpAddr:', lpAddr);
+  u('#setLpAddr').first().value = lpAddr;
+});
+u('#setLpBtn').handle('click', async (e) => {
+  console.log('setLp');
+  const addr = u('#setLpAddr').first().value;
+  console.log('addr:', addr);
+  // await sideLp.setLp(addr); 
+});
+u('#setLpSchBtn').handle('click', async (e) => {
+  console.log('setLp schedule');
+  const addr = u('#setLpAddr').first().value;
+  console.log('addr:', addr);
+
+  const data = sideLp.interface.encodeFunctionData('setLp', [addr]);
+  console.log('data:', data);
+  await sideTl.schedule(sideLp.address, 0, data, ZERO, ZERO, 0); 
+});
+u('#setLpExeBtn').handle('click', async (e) => {
+  console.log('setLp execute', sideTl.address);
+  const addr = u('#setLpAddr').first().value;
+  console.log('addr:', addr);
+
+  const data = sideLp.interface.encodeFunctionData('setLp', [addr]);
+  console.log('data:', data);
+  await sideTl.execute(sideLp.address, 0, data, ZERO, ZERO); 
+});
+
+u('#getOpBtn').handle('click', async (e) => {
+  console.log('getOp');
+  const opAddr = await sideLp.operator();
+  console.log('opAddr:', opAddr);
+  u('#setOpAddr').first().value = opAddr;
+});
+u('#setOpBtn').handle('click', async (e) => {
+  console.log('setOp');
+  const addr = u('#setOpAddr').first().value;
+  console.log('addr:', addr);
+  // await sideLp.setOperator(addr); 
+});
+u('#setOpSchBtn').handle('click', async (e) => {
+  console.log('setOp schedule');
+  const addr = u('#setOpAddr').first().value;
+  console.log('addr:', addr);
+
+  const data = sideLp.interface.encodeFunctionData('setOperator', [addr]);
+  console.log('data:', data);
+  await sideTl.schedule(sideLp.address, 0, data, ZERO, ZERO, 0); 
+});
+u('#setOpExeBtn').handle('click', async (e) => {
+  console.log('setOp execute');
+  const addr = u('#setOpAddr').first().value;
+  console.log('addr:', addr);
+
+  const data = sideLp.interface.encodeFunctionData('setOperator', [addr]);
+  console.log('data:', data);
+  await sideTl.execute(sideLp.address, 0, data, ZERO, ZERO); 
+});
+
+u('#addTokenBtn').handle('click', async (e) => {
+  console.log('addToken');
+  const tokenAddr = u('#addTokenAddr').first().value;
+  const cap = u('#addTokenCap').first().value;
+  const feeBps = u('#addTokenFeeBps').first().value;
+  const rewardBps = u('#addTokenRewardBps').first().value;
+  const receiver = u('#addTokenReceiver').first().value;
+  console.log(tokenAddr, cap, feeBps, rewardBps, receiver);
+  // await sideLp.addToken(tokenAddr, cap, feeBps, rewardBps, receiver);
+});
+u('#addTokenSchBtn').handle('click', async (e) => {
+  console.log('addToken schedule');
+  const tokenAddr = u('#addTokenAddr').first().value;
+  const cap = u('#addTokenCap').first().value;
+  const feeBps = u('#addTokenFeeBps').first().value;
+  const rewardBps = u('#addTokenRewardBps').first().value;
+  const receiver = u('#addTokenReceiver').first().value;
+  console.log(tokenAddr, cap, feeBps, rewardBps, receiver);
+
+  const data = sideLp.interface.encodeFunctionData('addToken',
+      [tokenAddr, cap, feeBps, rewardBps, receiver]);
+  console.log('data:', data);
+  await sideTl.schedule(sideLp.address, 0, data, ZERO, ZERO, 0); 
+});
+u('#addTokenExeBtn').handle('click', async (e) => {
+  console.log('addToken execute');
+  const tokenAddr = u('#addTokenAddr').first().value;
+  const cap = u('#addTokenCap').first().value;
+  const feeBps = u('#addTokenFeeBps').first().value;
+  const rewardBps = u('#addTokenRewardBps').first().value;
+  const receiver = u('#addTokenReceiver').first().value;
+  console.log(tokenAddr, cap, feeBps, rewardBps, receiver);
+
+  const data = sideLp.interface.encodeFunctionData('addToken',
+      [tokenAddr, cap, feeBps, rewardBps, receiver]);
+  console.log('data:', data);
+  await sideTl.execute(sideLp.address, 0, data, ZERO, ZERO); 
+});
+
+u('#delTokenBtn').handle('click', async (e) => {
+  console.log('delToken');
+  const tokenAddr = u('#delTokenAddr').first().value;
+  console.log(tokenAddr);
+  // await sideLp.removeToken(tokenAddr);
+});
+u('#delTokenSchBtn').handle('click', async (e) => {
+  console.log('delToken schedule');
+  const tokenAddr = u('#delTokenAddr').first().value;
+  console.log(tokenAddr);
+
+  const data = sideLp.interface.encodeFunctionData('removeToken', [tokenAddr]);
+  console.log('data:', data);
+  await sideTl.schedule(sideLp.address, 0, data, ZERO, ZERO, 0); 
+});
+u('#delTokenExeBtn').handle('click', async (e) => {
+  console.log('delToken execute');
+  const tokenAddr = u('#delTokenAddr').first().value;
+  console.log(tokenAddr);
+
+  const data = sideLp.interface.encodeFunctionData('removeToken', [tokenAddr]);
+  console.log('data:', data);
+  await sideTl.execute(sideLp.address, 0, data, ZERO, ZERO); 
+});
+
+u('#withdrawTokenBtn').handle('click', async (e) => {
+  console.log('withdrawToken');
+  const addr = u('#withdrawTokenAddr').first().value;
+  const amt = u('#withdrawTokenAmt').first().value;
+  console.log(addr, amt);
+  // await sideLp.withdrawToken(addr, amt);
+});
+u('#withdrawTokenSchBtn').handle('click', async (e) => {
+  console.log('withdrawToken schedule');
+  const addr = u('#withdrawTokenAddr').first().value;
+  const amt = u('#withdrawTokenAmt').first().value;
+  console.log(addr, amt);
+
+  const data = sideLp.interface.encodeFunctionData('withdrawToken', [addr, amt]);
+  console.log('data:', data);
+  await sideTl.schedule(sideLp.address, 0, data, ZERO, ZERO, 0); 
+});
+u('#withdrawTokenExeBtn').handle('click', async (e) => {
+  console.log('withdrawToken execute');
+  const addr = u('#withdrawTokenAddr').first().value;
+  const amt = u('#withdrawTokenAmt').first().value;
+  console.log(addr, amt);
+
+  const data = sideLp.interface.encodeFunctionData('withdrawToken', [addr, amt]);
+  console.log('data:', data);
+  await sideTl.execute(sideLp.address, 0, data, ZERO, ZERO); 
+});
+
+// ---------- operator ----------
+
+u('#getPausedBtn').handle('click', async (e) => {
+  console.log('getPaused');
+  const paused = await sideLp.paused();
+  console.log('paused:', paused);
+  u('#setPausedFlag').first().checked = paused;
+});
+u('#setPausedBtn').handle('click', async (e) => {
+  console.log('setPaused');
+  const flag = u('#setPausedFlag').first().checked;
+  console.log('flag:', flag);
+  // await sideLp.setPaused(flag);
+});
+
+u('#getTokenCfgBtn').handle('click', async (e) => {
+  console.log('getTokenCfg');
+  const tokenAddr = u('#cfgTokenAddr').first().value;
+  const cfg = await sideLp.tokenConfigs(tokenAddr);
+  console.log(tokenAddr, cfg);
+
+  const [enabled, feeBps, rewardBps, receiver, cap, div] = cfg;
+  u('#cfgTokenCap').first().value = cap;
+  u('#cfgTokenFeeBps').first().value = feeBps;
+  u('#cfgTokenRewardBps').first().value = rewardBps;
+  u('#cfgTokenEnabled').first().checked = enabled;
+  // u('#cfgTokenReceiver').first().value = receiver;
+});
+u('#setTokenCfgBtn').handle('click', async (e) => {
+  console.log('setTokenCfg');
+  const tokenAddr = u('#cfgTokenAddr').first().value;
+  const cap = u('#cfgTokenCap').first().value;
+  const feeBps = u('#cfgTokenFeeBps').first().value;
+  const rewardBps = u('#cfgTokenRewardBps').first().value;
+  const enabled = u('#cfgTokenEnabled').first().checked;
+  // const receiver = u('#cfgTokenReceiver').first().value;
+  console.log('tokenAddr:', tokenAddr);
+  console.log('cap:', cap);
+  console.log('feeBps:', feeBps);
+  console.log('rewardBps:', rewardBps);
+  console.log('enabled:', enabled);
+  // console.log('receiver:', receiver);
+  // await sideLp.configToken(tokenAddr, cap, feeBps, rewardBps, enabled);
+});
+
+u('#depositUsdvBtn').handle('click', async (e) => {
+  console.log('depositUsdv');
+  const amt = u('#depositUsdvAmt').first().value;
+  console.log('amt:', amt);
+  // await sideLp.depositUSDV(amt);
+});
+
+u('#getWhitelistBtn').handle('click', async (e) => {
+  console.log('getWhitelist');
+  const addr = u('#whitelistAddr').first().value;
+  const flag = u('#whitelistFlag').first().checked;
+  console.log(addr, flag);
+  const yes = await sideLp.whitelisted(addr);
+  console.log('yes:', yes);
+  u('#whitelistFlag').first().checked = yes;
+});
+u('#setWhitelistBtn').handle('click', async (e) => {
+  console.log('getWhitelist');
+  const addr = u('#whitelistAddr').first().value;
+  const flag = u('#whitelistFlag').first().checked;
+  console.log(addr, flag);
+  // await sideLp.setWhitelist(addr, flag);
+});
+
+// ---------- swap ----------
+
+u('#getUsdvOutBtn').handle('click', async (e) => {
+  console.log('getUsdvOut');
+  const addr = u('#getUsdvOutAddr').first().value;
+  const amt = u('#getUsdvOutAmt').first().value;
+  const verbose = u('#getUsdvOutVerbose').first().checked;
+  console.log(addr, amt, verbose);
+
+  const out1 = await sideLp.getUSDVOut(addr, amt);
+  const out2 = await sideLp.getUSDVOutVerbose(addr, amt);
+  console.log(out1, out2);
+  const out = verbose 
+    ? ({requestedOut: out2[0], rewardOut: out2[1]})
+    : ({usdvOut: out1});
+
+  u('#getUsdvOutOut').first().value = JSON.stringify(out);
+});
+
+u('#approveBtn').handle('click', async (e) => {
+  console.log('approve');
+  const token = u('#approveTokenAddr').first().value;
+  const amt = u('#approveAmt').first().value;
+  console.log(token, amt);
+
+  let erc20 = new ethers.Contract(token, erc20ABI, provider);
+  erc20 = erc20.connect(signer);
+  // await erc20.approve(sideLp.address, amt);
+});
+
+u('#swapBtn').handle('click', async (e) => {
+  console.log('swap');
+  const fromToken = u('#swapFromToken').first().value;
+  const inAmt = u('#fromInAmt').first().value;
+  const minOutAmt = u('#swapMinOutAmt').first().value;
+  const receiver = u('#swapReceiver').first().value;
+  console.log(fromToken, inAmt, minOutAmt, receiver);
+  // await sideLp.swapToUSDV(fromToken, inAmt, minOutAmt, receiver);
+});
+
+// ---------- MinterProxy ----------
+
+u('#swapAndSendBtn').handle('click', async (e) => {
+  console.log('swapAndSend');
+  const fromTokenAddr = u('#swapAndSendFromAddr').first().value;
+  const fromTokenAmt = u('#swapAndSendFromAmt').first().value;
+  const minOutAmt = u('#swapAndSendMinOut').first().value;
+  const receiverAddr = u('#swapAndSendReceiverAddr').first().value;
+  const dstEid = u('#swapAndSendDstEid').first().value;
+  const extraOps = u('#swapAndSendOps').first().value;
+  const nativeFee = u('#swapAndSendNativeFee').first().value;
+  const lzTokenFee = u('#swapAndSendLzTokenFee').first().value;
+  const refundAddr = u('#swapAndSendRefundAddr').first().value;
+  const color = u('#swapAndSendColor').first().value;
+
+  console.log('fromTokenAddr:', fromTokenAddr);
+  console.log('fromTokenAmt:', fromTokenAmt);
+  console.log('minOutAmt:', minOutAmt);
+  console.log('receiverAddr:', receiverAddr);
+  console.log('dstEid:', dstEid);
+  console.log('extraOps:', extraOps);
+  console.log('nativeFee:', nativeFee);
+  console.log('lzTokenFee:', lzTokenFee);
+  console.log('refundAddr:', refundAddr);
+  console.log('color:', color);
+
+  let minterProxy = new ethers.Contract(minterProxyAddr, minterProxyABI, provider);
+  minterProxy = minterProxy.connect(signer);
+
+  // const tx = await minterProxy.swapToUSDVAndSend(
+  //   [fromTokenAddr, fromTokenAmt, minOutAmt], // swapParam
+  //   dstEid,
+  //   extraOps,
+  //   [nativeFee, lzTokenFee], // msgFee
+  //   refundAddr,
+  //   color,
+  // );
+  // console.log(tx);
+});
+
+// ------------ TimelockController ----------
+
+let pendingTXs = [];
+
+u('#viewTxsBtn').handle('click', async (e) => {
+    console.log("click viewTxsBtn")
+    u('#txsRows').empty();
+    pendingTXs = [];
+    const height = await provider.getBlockNumber();
+    console.log("height: ", height);
+    await collectPendingTxs(height-7*24*360, height);
+});
+
+async function collectPendingTxs(fromBlock, toBlock) {
+    console.log('collectPendingTxs:', fromBlock, toBlock);
+    const events = await sideTl.queryFilter("*", fromBlock, toBlock);
+    console.log('events:', events);
+    for (let event of events) {
+        if (event.event == 'CallScheduled') {
+            console.log("Find CallScheduled event");
+            let tx = {
+                "txid": event.transactionHash,
+                "id": event.args[0],
+                "target": event.args[2],
+                "value": event.args[3].toString(),
+                "data": event.args[4],
+                "predecessor": event.args[5],
+                "delay":event.args[6].toString(),
+                "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            };
+            console.log(JSON.stringify(tx));
+            pendingTXs.push(tx);
+        } else if (event.event == 'CallSalt') {
+            if (event.transactionHash == pendingTXs[pendingTXs.length - 1].txid) {
+                pendingTXs[pendingTXs.length - 1].salt = event.args[1];
+                console.log("find callSalt")
+                console.log(JSON.stringify(pendingTXs[pendingTXs.length - 1]));
+            }
+        }
+    }
+    for (const tx of pendingTXs) {
+        const i = pendingTXs.indexOf(tx);
+        const t = decodeCalldata(tx.target, tx.data);
+        console.log(t);
+
+        let isPending = await sideTl.isOperationPending(tx.id);
+        console.log("pending status:", isPending);
+        let isReady = await sideTl.isOperationReady(tx.id);
+        console.log("ready status:", isReady);
+        if (isPending === true) {
+            u('#txsRows').append(`
+            <tr style="font-size: 12px">
+              <td><abbr title="${tx.target}">${tx.target.substring(0, 20)}</abbr></td>
+              <td>${tx.value}</td>
+              <td><abbr title="${tx.predecessor}">${tx.predecessor.substring(0, 6)}</abbr></td>
+              <td><abbr title="${tx.salt}">${tx.salt.substring(0, 6)}</abbr></td>
+              <td>${tx.delay}</td>
+              <td>${JSON.stringify(t)}</td>
+              <td><button class="button is-link" ${!isReady ? 'disabled' : ''} onclick="execBtnHandle(this.id)" id="execBtn${tx.id}">execute</button></td>
+              <td><button class="button is-link" onclick="cancelBtnHandle(this.id)" id="cancelBtn${tx.id}">cancel</button></td>
+              </tr>`);
+        }
+    }
+}
+window.execBtnHandle = async function (clickID) {
+    console.log("click execBtn of:", clickID);
+    let tx = pendingTXs.find((tx) => tx.id === clickID.slice(7,))
+    console.log(tx);
+    try {
+        await sideTl.execute(tx.target, tx.value, tx.data, tx.predecessor, tx.salt);
+    } catch (e) {
+        console.log(e);
+    }
+}
+window.cancelBtnHandle = async function (clickID) {
+    console.log("click cancelBtn of:", clickID);
+    let tx = pendingTXs.find((tx) => tx.id === clickID.slice(9,))
+    console.log(tx);
+    try {
+        await sideTl.cancel(tx.id);
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+// ---------- Calldata ----------
+
+u('#decodeCdBtn').handle('click', async (e) => {
+  console.log('decodeCalldata');
+  const addr = u('#decodeCdAddr').first().value;
+  const data = u('#decodeCdData').first().value;
+  console.log(addr, data);
+
+  const result = decodeCalldata(addr, data);
+  console.log(result);
+  u('#decodeCdResult').first().value = JSON.stringify(result);
+});
+
+  </script>
+  </body>
+</html>
