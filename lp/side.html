@@ -88,7 +88,7 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Index</th>
+                <th>Symbol_Decimals</th>
                 <th>Address</th>
                 <th>Enabled</th>
                 <th>FeeBps</th>
@@ -764,10 +764,13 @@ u('#getSupportedTokensBtn').handle('click', async (e) => {
   for (let i = 0; i < allTokens.length; i++) {
     const token = allTokens[i];
     const [enabled, feeBps, rewardBps, receiver, cap, div] = tokenConfigs[i];
+    const erc20 = new ethers.Contract(token, erc20ABI, provider);
+    const symbol = await erc20.symbol();
+    const decimals = await erc20.decimals();
 
     u('#allTokenRows').append(
 `<tr>
-  <td>${i}</td>
+  <td>${symbol} ${decimals}</td>
   <td><code>${token}</code></td>
   <td>${enabled}</td>
   <td>${feeBps}</td>
