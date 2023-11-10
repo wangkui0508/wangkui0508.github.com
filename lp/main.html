@@ -94,7 +94,7 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Symbol</th>
+                <th>Symbol_Decimals</th>
                 <th>Address</th>
                 <th>Paused</th>
                 <th>FeeBps</th>
@@ -642,7 +642,7 @@ async function connectWallet(e) {
 
   const chainId = await window.ethereum.request({ method: 'eth_chainId' });
   console.log('chainId:', chainId);
-  await showUsdvInfo(getUsdvAddr(USDVAddr));
+  await showUsdvInfo(getUsdvAddr(chainId));
   await showVmInfo();
 };
 
@@ -713,11 +713,12 @@ u('#getAllTokensBtn').handle('click', async (e) => {
     const token = allTokens[i];
     const erc20 = new ethers.Contract(token, erc20ABI, provider);
     const symbol = await erc20.symbol();
+    const decimals = await erc20.decimals();
     const cfg = tokenConfigs[i];
 
     u('#allTokenRows').append(
 `<tr>
-  <td>${symbol}</td>
+  <td>${symbol} ${decimals}</td>
   <td><code>${token}</code></td>
   <td>${cfg.paused}</td>
   <td>${cfg.feeBps}</td>
@@ -1090,6 +1091,7 @@ const VMLIQUIDITY_PROVIDER = 3;
 const VMDONOR = 4;
 
 async function showUsdvInfo(usdvAddr) {
+  console.log("USDV Address", usdvAddr);
   const usdv = new ethers.Contract(usdvAddr, USDVABI, provider);
   console.log("USDVOWNER", await usdv.getRole(USDVOWNER));
   const opConAddr = await usdv.getRole(USDVOPERATOR);
