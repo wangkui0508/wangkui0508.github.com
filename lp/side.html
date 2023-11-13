@@ -362,7 +362,6 @@
   </section>
 
   <section id="secMinterOps" class="section is-hidden">
-
     <div class="panel is-link">
       <p class="panel-heading">Swap to USDV and Send</p>
       <div class="box"> 
@@ -386,6 +385,7 @@
           <label class="label">DST EID</label>
           <input class="input" type="text" id="swapAndSendDstEid" />
         </div>
+	<!--
         <div class="field">
           <label class="label">Extra Options</label>
           <input class="input" type="text" id="swapAndSendOps" />
@@ -398,6 +398,7 @@
           <label class="label">MsgFee: LZ Token Fee</label>
           <input class="input" type="text" id="swapAndSendLzTokenFee" />
         </div>
+        -->
         <div class="field">
           <label class="label">Refund Address</label>
           <input class="input" type="text" id="swapAndSendRefundAddr" />
@@ -408,6 +409,28 @@
         </div>
         <div class="control">
           <button class="button is-link" id="swapAndSendBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="panel is-link">
+      <p class="panel-heading">Send USDV Cross-Chain</p>
+      <div class="box"> 
+        <div class="field">
+          <label class="label">Token Amount</label>
+          <input class="input" type="text" id="ccSendAmt" />
+        </div>
+        <div class="field">
+          <label class="label">USDV Receiver Address</label>
+          <input class="input" type="text" id="ccSendReceiverAddr" />
+        </div>
+        <div class="field">
+          <label class="label">DST EID (bsc=102 avax=106 arb=110 op=111)</label>
+          <input class="input" type="text" id="ccSendDstEid" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="ccSendBtn">Submit</button>
         </div>
       </div>
     </div>
@@ -509,6 +532,7 @@ usdc: 0xDf0360Ad8C5ccf25095Aa97ee5F2785c8d848620
 const goerliLpAddr = '0x7aB478c36B5b2Bb58f0C38Ea2252dfD18e153f6d'
 const goerliTlAddr = '0x4dF2Ba2205B6dE76164A7E2beB991DC1A48D9524'
 
+const EthUSDVAddr = "0x0E573Ce2736Dd9637A0b21058352e1667925C7a8";
 
 const ethLpABI = [
   "function usdvMinterProxy() public view returns (address)",
@@ -577,12 +601,32 @@ const minterProxyABI = [
         tupple(address, uint, uint64) _param,
         bytes32 _usdvReceiver,
         uint32 _dstEid,
-        bytes calldata _extraOptions,
+        bytes _extraOptions,
         tupple(uint256, uint256) _msgFee,
         address payable _refundAddress,
         uint32 _mintColor
     ) external payable returns (uint usdvOut)
   `
+];
+
+const USDVABI = [
+  `
+    function quoteSendFee(
+        tupple(bytes32, uint, uint, uint32) _param,
+        bytes _extraOptions,
+        bool _useLZToken,
+        bytes _composeMsg
+    ) external view returns (uint nativeFee, uint lzTokenFee)
+  `,
+  `
+    function send(
+        tupple(bytes32, uint, uint, uint32) _param,
+        bytes _extraOptions,
+        tupple(uint, uint) _msgFee,
+        address payable _refundAddress,
+        bytes _composeMsg
+    ) external payable returns (bytes32 guid, uint64 nonce, uint nativeFee, uint lzTokenFee)
+  `,
 ];
 
 var provider;
@@ -599,6 +643,7 @@ function getSideLpInfo(chainId) {
   case 42161: return [arbLpAddr,    arbTlAddr,    'ARB'   ]; // ArbOne
 //case 42170: return [arbLpAddr,    arbTlAddr,    'ARB'   ]; // ArbNova
   case 43114: return [avaxLpAddr,   avaxTlAddr,   'AXAX'  ];
+  case     1: return [avaxLpAddr,   avaxTlAddr,   'ETH'  ];
   default: throw "unsupported chain:" + chainId;
   }
 }
@@ -1051,6 +1096,31 @@ u('#swapBtn').handle('click', async (e) => {
 
 // ---------- MinterProxy ----------
 
+u('#ccSendBtn').handle('click', async (e) => {
+  console.log('ccSend');
+  const amt = u('#ccSendAmt').first().value;
+  const receiverAddr = u('#ccSendReceiverAddr').first().value;
+  const dstEid = u('#ccSendDstEid').first().value;
+  const receiverAddr32 = ethers.utils.hexZeroPad(receiverAddr, 32)
+  console.log("ccSendAmt", amt)
+  console.log("ccSendReceiverAddr", receiverAddr32)
+  console.log("ccSendDstEid", dstEid)
+
+  let usdv = new ethers.Contract(EthUSDVAddr, USDVABI, provider);
+  usdv = usdv.connect(signer);
+  let adapterParams = ethers.utils.solidityPack(
+    ['uint16','uint256'],
+    [1, 200000]
+  );
+
+  let [nativeFee, lzTokenFee] = await usdv.quoteSendFee([receiverAddr32, amt, amt, dstEid], adapterParams, false, "0x");
+  console.log("Fee", nativeFee, lzTokenFee)
+
+  const tx = await usdv.send([receiverAddr32, amt, amt, dstEid], adapterParams, 
+    [nativeFee, lzTokenFee], receiverAddr, "0x", {value: nativeFee});
+  console.log(tx);
+});
+
 u('#swapAndSendBtn').handle('click', async (e) => {
   console.log('swapAndSend');
   const fromTokenAddr = u('#swapAndSendFromAddr').first().value;
@@ -1058,9 +1128,9 @@ u('#swapAndSendBtn').handle('click', async (e) => {
   const minOutAmt = u('#swapAndSendMinOut').first().value;
   const receiverAddr = u('#swapAndSendReceiverAddr').first().value;
   const dstEid = u('#swapAndSendDstEid').first().value;
-  const extraOps = u('#swapAndSendOps').first().value;
-  const nativeFee = u('#swapAndSendNativeFee').first().value;
-  const lzTokenFee = u('#swapAndSendLzTokenFee').first().value;
+  //const extraOps = u('#swapAndSendOps').first().value;
+  //const nativeFee = u('#swapAndSendNativeFee').first().value;
+  //const lzTokenFee = u('#swapAndSendLzTokenFee').first().value;
   const refundAddr = u('#swapAndSendRefundAddr').first().value;
   const color = u('#swapAndSendColor').first().value;
 
@@ -1069,24 +1139,29 @@ u('#swapAndSendBtn').handle('click', async (e) => {
   console.log('minOutAmt:', minOutAmt);
   console.log('receiverAddr:', receiverAddr);
   console.log('dstEid:', dstEid);
-  console.log('extraOps:', extraOps);
-  console.log('nativeFee:', nativeFee);
-  console.log('lzTokenFee:', lzTokenFee);
+  //console.log('extraOps:', extraOps);
+  //console.log('nativeFee:', nativeFee);
+  //console.log('lzTokenFee:', lzTokenFee);
   console.log('refundAddr:', refundAddr);
   console.log('color:', color);
+
+  let usdv = new ethers.Contract(EthUSDVAddr, USDVABI, provider);
+  let [nativeFee, lzTokenFee] = usdv.quoteSendFee([receiverAddr, minOutAmt, minOutAmt, dstEid], "", false, "");
 
   let minterProxy = new ethers.Contract(minterProxyAddr, minterProxyABI, provider);
   minterProxy = minterProxy.connect(signer);
 
-  // const tx = await minterProxy.swapToUSDVAndSend(
-  //   [fromTokenAddr, fromTokenAmt, minOutAmt], // swapParam
-  //   dstEid,
-  //   extraOps,
-  //   [nativeFee, lzTokenFee], // msgFee
-  //   refundAddr,
-  //   color,
-  // );
-  // console.log(tx);
+  const tx = await minterProxy.swapToUSDVAndSend(
+    [fromTokenAddr, fromTokenAmt, minOutAmt], // swapParam
+    receiverAddr,
+    dstEid,
+    "",
+    [nativeFee, lzTokenFee], // msgFee
+    refundAddr,
+    color,
+    {value: nativeFee}
+  );
+  console.log(tx);
 });
 
 // ------------ TimelockController ----------
