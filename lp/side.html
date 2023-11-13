@@ -367,7 +367,13 @@
       <div class="box"> 
         <div class="field">
           <label class="label">SwapParam: From Token Address</label>
-          <input class="input" type="text" id="swapAndSendFromAddr" />
+          <div class="select">
+	    <select id="swapAndSendFromAddr">
+              <option value="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48">USDC 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48</option>
+              <option value="0xdAC17F958D2ee523a2206206994597C13D831ec7">USDT 0xdAC17F958D2ee523a2206206994597C13D831ec7</option>
+              <option value="0x6B175474E89094C44Da98b954EedeAC495271d0F">DAI 0x6B175474E89094C44Da98b954EedeAC495271d0F</option>
+            </select>
+          </div>
         </div>
         <div class="field">
           <label class="label">SwapParam: From Token Amount</label>
@@ -382,23 +388,9 @@
           <input class="input" type="text" id="swapAndSendReceiverAddr" />
         </div>
         <div class="field">
-          <label class="label">DST EID</label>
+          <label class="label">DST EID (eth=101 bsc=102 avax=106 arb=110 op=111)</label>
           <input class="input" type="text" id="swapAndSendDstEid" />
         </div>
-	<!--
-        <div class="field">
-          <label class="label">Extra Options</label>
-          <input class="input" type="text" id="swapAndSendOps" />
-        </div>
-        <div class="field">
-          <label class="label">MsgFee: Native Fee</label>
-          <input class="input" type="text" id="swapAndSendNativeFee" />
-        </div>
-        <div class="field">
-          <label class="label">MsgFee: LZ Token Fee</label>
-          <input class="input" type="text" id="swapAndSendLzTokenFee" />
-        </div>
-        -->
         <div class="field">
           <label class="label">Refund Address</label>
           <input class="input" type="text" id="swapAndSendRefundAddr" />
@@ -1129,6 +1121,7 @@ u('#swapAndSendBtn').handle('click', async (e) => {
   const fromTokenAmt = u('#swapAndSendFromAmt').first().value;
   const minOutAmt = u('#swapAndSendMinOut').first().value;
   const receiverAddr = u('#swapAndSendReceiverAddr').first().value;
+  const receiverAddr32 = ethers.utils.hexZeroPad(receiverAddr, 32)
   const dstEid = u('#swapAndSendDstEid').first().value;
   //const extraOps = u('#swapAndSendOps').first().value;
   //const nativeFee = u('#swapAndSendNativeFee').first().value;
@@ -1139,7 +1132,7 @@ u('#swapAndSendBtn').handle('click', async (e) => {
   console.log('fromTokenAddr:', fromTokenAddr);
   console.log('fromTokenAmt:', fromTokenAmt);
   console.log('minOutAmt:', minOutAmt);
-  console.log('receiverAddr:', receiverAddr);
+  console.log('receiverAddr32:', receiverAddr32);
   console.log('dstEid:', dstEid);
   //console.log('extraOps:', extraOps);
   //console.log('nativeFee:', nativeFee);
@@ -1147,17 +1140,25 @@ u('#swapAndSendBtn').handle('click', async (e) => {
   console.log('refundAddr:', refundAddr);
   console.log('color:', color);
 
-  let usdv = new ethers.Contract(EthUSDVAddr, USDVABI, provider);
-  let [nativeFee, lzTokenFee] = usdv.quoteSendFee([receiverAddr, minOutAmt, minOutAmt, dstEid], "", false, "");
+  let usdv = new ethers.Contract(Number(chainId)==1? EthUSDVAddr: SideUSDVAddr, USDVABI, provider);
+  usdv = usdv.connect(signer);
+  let adapterParams = ethers.utils.solidityPack(
+    ['uint16','uint256'],
+    [1, 200000]
+  );
+  console.log('adapterParams', adapterParams);
+
+  let [nativeFee, lzTokenFee] = await usdv.quoteSendFee([receiverAddr32, minOutAmt, minOutAmt, dstEid], adapterParams, false, "0x");
+  console.log("Fee", nativeFee, lzTokenFee)
 
   let minterProxy = new ethers.Contract(minterProxyAddr, minterProxyABI, provider);
   minterProxy = minterProxy.connect(signer);
 
   const tx = await minterProxy.swapToUSDVAndSend(
     [fromTokenAddr, fromTokenAmt, minOutAmt], // swapParam
-    receiverAddr,
+    receiverAddr32,
     dstEid,
-    "",
+    adapterParams,
     [nativeFee, lzTokenFee], // msgFee
     refundAddr,
     color,
