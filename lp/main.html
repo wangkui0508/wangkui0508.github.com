@@ -253,6 +253,19 @@
 
   <section id="secOperatorOps" class="section is-hidden">
     <div class="panel is-link">
+      <p class="panel-heading">Approve STBT to EthereumLP (By LP EOA)</p>
+      <div class="box">
+        <div class="field">
+           <label class="label">Approve Amount</label>
+           <input class="input" type="text" id="approveAmount" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="approveBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
       <p class="panel-heading">Pause (EthereumLP)</p>
       <div class="box">
         <div class="field">
@@ -468,6 +481,7 @@ import { ethers } from "./ethers-5.4.esm.min.js";
 import u from './umbrella-3.3.0.esm.js';
 import { toast } from './bulma-toast.esm.js';
 
+const STBTAddr = "0x530824DA86689C9C17CdC2871Ff29B058345b44a";
 //ethereum:
 const ethLpAddr = "0x3986D5C53cE965EA16EF66845AB56A9DdE9Cd210";
 const timelockControllerAddr = "0x050073174f5E47D1f8C1F5e8E9B00D6af73458a1"; //tempory testing account
@@ -828,6 +842,14 @@ u('#transferOwnershipBtn').handle('click', async (e) => {
 });
 
 // ----------- operator ----------------
+u('#approveBtn').handle('click', async (e) => {
+  console.log('approve');
+  const amt = u('#approveAmount').first().value;
+
+  let erc20 = new ethers.Contract(STBTAddr, erc20ABI, provider);
+  erc20 = erc20.connect(signer);
+  await erc20.approve(ethLp.address, amt);
+});
 
 u('#getPausedBtn').handle('click', async (e) => {
   console.log('getPaused');
@@ -943,17 +965,6 @@ u('#getUsdvOutBtn').handle('click', async (e) => {
     : ({usdvOut: out1});
 
   u('#getUsdvOutOut').first().value = JSON.stringify(out);
-});
-
-u('#approveBtn').handle('click', async (e) => {
-  console.log('approve');
-  const token = u('#approveTokenAddr').first().value;
-  const amt = u('#approveAmt').first().value;
-  console.log(token, amt);
-
-  let erc20 = new ethers.Contract(token, erc20ABI, provider);
-  erc20 = erc20.connect(signer);
-  // await erc20.approve(ethLp.address, amt);
 });
 
 u('#swapBtn').handle('click', async (e) => {
