@@ -426,7 +426,7 @@
           <input class="input" type="text" id="ccSendReceiverAddr" />
         </div>
         <div class="field">
-          <label class="label">DST EID (bsc=102 avax=106 arb=110 op=111)</label>
+          <label class="label">DST EID (eth=101 bsc=102 avax=106 arb=110 op=111)</label>
           <input class="input" type="text" id="ccSendDstEid" />
         </div>
         <div class="control">
@@ -533,6 +533,7 @@ const goerliLpAddr = '0x7aB478c36B5b2Bb58f0C38Ea2252dfD18e153f6d'
 const goerliTlAddr = '0x4dF2Ba2205B6dE76164A7E2beB991DC1A48D9524'
 
 const EthUSDVAddr = "0x0E573Ce2736Dd9637A0b21058352e1667925C7a8";
+const SideUSDVAddr = "0x323665443CEf804A3b5206103304BD4872EA4253";
 
 const ethLpABI = [
   "function usdvMinterProxy() public view returns (address)",
@@ -634,6 +635,7 @@ var signer;
 var myAddr;
 var sideLp;
 var sideTl;
+var chainId;
 
 function getSideLpInfo(chainId) {
   switch (Number(chainId)) {
@@ -732,7 +734,7 @@ async function connectWallet(e) {
   console.log('myAddr:', myAddr);
   u("#addressHeader").text(myAddr);
 
-  const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+  chainId = await window.ethereum.request({ method: 'eth_chainId' });
   console.log('chainId:', chainId);
 
   const [sideLpAddr, sideTlAddr, chainName] = getSideLpInfo(chainId);
@@ -1106,7 +1108,7 @@ u('#ccSendBtn').handle('click', async (e) => {
   console.log("ccSendReceiverAddr", receiverAddr32)
   console.log("ccSendDstEid", dstEid)
 
-  let usdv = new ethers.Contract(EthUSDVAddr, USDVABI, provider);
+  let usdv = new ethers.Contract(Number(chainId)==1? EthUSDVAddr: SideUSDVAddr, USDVABI, provider);
   usdv = usdv.connect(signer);
   let adapterParams = ethers.utils.solidityPack(
     ['uint16','uint256'],
