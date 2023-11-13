@@ -385,15 +385,14 @@
         </div>
         <div class="field">
           <label class="label">USDV Receiver Address</label>
-          <input class="input" type="text" id="swapAndSendReceiverAddr" />
-        </div>
-        <div class="field">
-          <label class="label">DST EID (eth=101 bsc=102 avax=106 arb=110 op=111)</label>
-          <input class="input" type="text" id="swapAndSendDstEid" />
-        </div>
-        <div class="field">
-          <label class="label">Refund Address</label>
-          <input class="input" type="text" id="swapAndSendRefundAddr" />
+          <div class="select">
+	    <select id="swapAndSendReceiverAddr">
+              <option value="0x7F9A873cB57AF892e229b8EE445dde9372539fce">SideLp@BSC</option>
+              <option value="0x728A036fBBF66FD7b09807a8d605c929B44bDF9E">SideLp@AVAX</option>
+              <option value="0x4607432711D0A26Bdb9DfF61A6Ab1d32780690d2">SideLp@Arbitrum</option>
+              <option value="0x5cCFd72da5bd694CB6CD2919987Ced474F8E3Fb3">SideLp@Optimism</option>
+            </select>
+          </div>
         </div>
         <div class="field">
           <label class="label">Color</label>
@@ -1122,23 +1121,30 @@ u('#swapAndSendBtn').handle('click', async (e) => {
   const minOutAmt = u('#swapAndSendMinOut').first().value;
   const receiverAddr = u('#swapAndSendReceiverAddr').first().value;
   const receiverAddr32 = ethers.utils.hexZeroPad(receiverAddr, 32)
-  const dstEid = u('#swapAndSendDstEid').first().value;
+  //const dstEid = u('#swapAndSendDstEid').first().value;
   //const extraOps = u('#swapAndSendOps').first().value;
   //const nativeFee = u('#swapAndSendNativeFee').first().value;
   //const lzTokenFee = u('#swapAndSendLzTokenFee').first().value;
-  const refundAddr = u('#swapAndSendRefundAddr').first().value;
+  //const refundAddr = u('#swapAndSendRefundAddr').first().value;
   const color = u('#swapAndSendColor').first().value;
 
   console.log('fromTokenAddr:', fromTokenAddr);
   console.log('fromTokenAmt:', fromTokenAmt);
   console.log('minOutAmt:', minOutAmt);
   console.log('receiverAddr32:', receiverAddr32);
-  console.log('dstEid:', dstEid);
+  //console.log('dstEid:', dstEid);
   //console.log('extraOps:', extraOps);
   //console.log('nativeFee:', nativeFee);
   //console.log('lzTokenFee:', lzTokenFee);
-  console.log('refundAddr:', refundAddr);
+  //console.log('refundAddr:', refundAddr);
   console.log('color:', color);
+
+  let dstEid = -1
+  //eth=101 bsc=102 avax=106 arb=110 op=111
+  if(receiverAddr == bscLpAddr) dstEid=102;
+  if(receiverAddr == avaxLpAddr) dstEid=106;
+  if(receiverAddr == arbLpAddr) dstEid=110;
+  if(receiverAddr == opLpAddr) dstEid=111;
 
   let usdv = new ethers.Contract(Number(chainId)==1? EthUSDVAddr: SideUSDVAddr, USDVABI, provider);
   usdv = usdv.connect(signer);
@@ -1160,7 +1166,7 @@ u('#swapAndSendBtn').handle('click', async (e) => {
     dstEid,
     adapterParams,
     [nativeFee, lzTokenFee], // msgFee
-    refundAddr,
+    myAddr,
     color,
     {value: nativeFee}
   );
