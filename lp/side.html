@@ -399,7 +399,8 @@
           <input class="input" type="text" id="swapAndSendColor" />
         </div>
         <div class="control">
-          <button class="button is-link" id="swapAndSendBtn">Submit</button>
+          <button class="button is-link" id="swapAndSendBtn">Swap and Send</button>&nbsp;&nbsp;&nbsp;
+          <button class="button is-link" id="swapOnlyBtn">Swap Only</button>
         </div>
       </div>
     </div>
@@ -487,7 +488,7 @@ import { toast } from './bulma-toast.esm.js';
 
 const ZERO = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
-const minterProxyAddr = '0x0000000000000000000000000000000000000009'; // todo
+const minterProxyAddr = "0x3c6CE18aFDE845635A32a69D0a7721b0Db84118e";
 
 const ethLpAddr  = '0xB9598ce5003c6F3f451fc0DE35fb9d0135c73d2E';
 const bscLpAddr  = '0x7F9A873cB57AF892e229b8EE445dde9372539fce';
@@ -588,6 +589,21 @@ const ownableABI = [
 ];
 
 const minterProxyABI = [
+  "function getSupportedFromTokens(uint32 _color) external view returns (address[] memory tokens)",
+  `
+    function swapToUSDV(
+        tupple(address, uint, uint64) _param,
+        address _usdvReceiver,
+        uint32 _mintColor
+    ) external returns (uint usdvOut)
+  `,
+  `
+    function getSwapToUSDVAmountOut(
+        address _fromToken,
+        uint _fromTokenAmount,
+        uint32 _mintColor
+    ) external view returns (uint usdvOut)
+  `,
   `
     function swapToUSDVAndSend(
         tupple(address, uint, uint64) _param,
@@ -1111,6 +1127,34 @@ u('#ccSendBtn').handle('click', async (e) => {
 
   const tx = await usdv.send([receiverAddr32, amt, amt, dstEid], adapterParams, 
     [nativeFee, lzTokenFee], receiverAddr, "0x", {value: nativeFee});
+  console.log(tx);
+});
+
+u('#swapOnlyBtn').handle('click', async (e) => {
+  const fromTokenAddr = u('#swapAndSendFromAddr').first().value;
+  const fromTokenAmt = u('#swapAndSendFromAmt').first().value;
+  const minOutAmt = u('#swapAndSendMinOut').first().value;
+  const color = u('#swapAndSendColor').first().value;
+
+  console.log('fromTokenAddr:', fromTokenAddr);
+  console.log('fromTokenAmt:', fromTokenAmt);
+  console.log('minOutAmt:', minOutAmt);
+  console.log('color:', color);
+
+  let minterProxy = new ethers.Contract(minterProxyAddr, minterProxyABI, provider);
+  minterProxy = minterProxy.connect(signer);
+
+  //console.log(await minterProxy.getSupportedFromTokens(1));
+  //console.log(await minterProxy.getSupportedFromTokens(2));
+  //console.log(await minterProxy.getSupportedFromTokens(3));
+  //const usdvOut = await minterProxy.getSwapToUSDVAmountOut(fromTokenAddr, fromTokenAmt, color);
+  //console.log("usdvOut", usdvOut);
+
+  const tx = await minterProxy.swapToUSDV(
+    [fromTokenAddr, fromTokenAmt, minOutAmt], // swapParam
+    myAddr,
+    color
+  );
   console.log(tx);
 });
 
