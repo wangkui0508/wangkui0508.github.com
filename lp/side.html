@@ -399,6 +399,7 @@
           <input class="input" type="text" id="swapAndSendColor" />
         </div>
         <div class="control">
+          <button class="button is-link" id="approveMinterProxyBtn">Approve Token</button>&nbsp;&nbsp;&nbsp;
           <button class="button is-link" id="swapAndSendBtn">Swap and Send</button>&nbsp;&nbsp;&nbsp;
           <button class="button is-link" id="swapOnlyBtn">Swap Only</button>
         </div>
@@ -1156,6 +1157,15 @@ u('#swapOnlyBtn').handle('click', async (e) => {
     color
   );
   console.log(tx);
+});
+
+u('#approveMinterProxyBtn').handle('click', async (e) => {
+  console.log('approve');
+  const fromTokenAddr = u('#swapAndSendFromAddr').first().value;
+
+  let erc20 = new ethers.Contract(fromTokenAddr, erc20ABI, provider);
+  erc20 = erc20.connect(signer);
+  await erc20.approve(minterProxyAddr, "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 });
 
 u('#swapAndSendBtn').handle('click', async (e) => {
