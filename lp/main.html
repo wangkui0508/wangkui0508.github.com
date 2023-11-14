@@ -237,6 +237,19 @@
     </div>
 
     <div class="panel is-link">
+      <p class="panel-heading">Change EthereumLP's Implementation</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">New Implementation Address</label>
+          <input class="input" type="text" id="newImplAddr" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="changeImplBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
       <p class="panel-heading">Transfer Ownership Directly (only use once)</p>
       <div class="box">
         <div class="field">
@@ -498,8 +511,13 @@ const MPOWNER = "0x30109F25428cBe2AA7FD33646A097BfBECF17365";
 const ZERO = "0x0000000000000000000000000000000000000000000000000000000000000000";
 const DELAY = 20;
 
-const ownableABI = [
+const proxyAdminABI = [
   "function owner() public view returns (address)",
+  "function getProxyImplementation(address proxy) public view returns (address)",
+  "function getProxyAdmin(address proxy) public view returns (address)",
+  "function changeProxyAdmin(address proxy, address newAdmin) public",
+  "function upgrade(address proxy, address implementation) public",
+  "function upgradeAndCall(address proxy, address implementation, bytes memory data) public payable",
 ]
 
 const timelockControllerABI = [
@@ -697,14 +715,23 @@ u('#getBasicInfoBtn').handle('click', async (e) => {
   console.log(codehashes)
   u('#infoRegisteredCodeHashes').first().value = value;
 
-  const impl = await getAddrAtSlot(ethLpAddr, "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc");
-  const admin = await getAddrAtSlot(ethLpAddr, "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103");
+  const impl = ethers.utils.getAddress(await getAddrAtSlot(ethLpAddr, "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"));
+  const admin = ethers.utils.getAddress(await getAddrAtSlot(ethLpAddr, "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103"));
   u('#infoEthLpImpl').first().value = impl;
   u('#infoProxyAdminAddr').first().value = admin;
 
-  const proxyAdmin = new ethers.Contract(admin, ownableABI, provider);
+  const proxyAdmin = new ethers.Contract(admin, proxyAdminABI, provider);
   const proxyAdminOwner = await proxyAdmin.owner();
   u('#infoProxyAdminOwner').first().value = proxyAdminOwner;
+
+  const impl2 = await proxyAdmin.getProxyImplementation(ethLpAddr);
+  const admin2 = await proxyAdmin.getProxyAdmin(ethLpAddr);
+  if(impl2 != impl) {
+     alert("Mismatch! "+ impl2 + " not "+impl)
+  }
+  if(admin2 != admin) {
+     alert("Mismatch! "+ admin2 + " not "+admin)
+  }
 });
 
 u('#getAllTokensBtn').handle('click', async (e) => {
@@ -833,6 +860,17 @@ u('#withdrawTokenBtn').handle('click', async (e) => {
   console.log('data:', data);
   console.log(decodeCalldata(ethLpAddr, data));
   await timelockController.schedule(ethLp.address, 0, data, ZERO, ZERO, DELAY); 
+});
+
+u('#changeImplBtn').handle('click', async (e) => {
+  console.log('changeImplBtn');
+  const newImpl = u('#newImplAddr').first().value;
+
+  const admin = await getAddrAtSlot(ethLpAddr, "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103");
+
+  let proxyAdmin = new ethers.Contract(admin, proxyAdminABI, provider);
+  proxyAdmin = proxyAdmin.connect(signer);
+  await proxyAdmin.upgrade(ethLpAddr, newImpl);
 });
 
 u('#transferOwnershipBtn').handle('click', async (e) => {
@@ -1117,11 +1155,11 @@ async function showUsdvInfo(usdvAddr) {
   console.log("USDV Impl", impl);
   console.log("USDV Proxy Admin", admin);
 
-  var proxyAdmin = new ethers.Contract(admin, ownableABI, provider);
+  var proxyAdmin = new ethers.Contract(admin, proxyAdminABI, provider);
   console.log("Owner of USDV Proxy Admin", await proxyAdmin.owner());
-  proxyAdmin = new ethers.Contract(opConAddr, ownableABI, provider);
+  proxyAdmin = new ethers.Contract(opConAddr, proxyAdminABI, provider);
   console.log("Owner of Operator Contract", await proxyAdmin.owner());
-  proxyAdmin = new ethers.Contract(msgConAddr, ownableABI, provider);
+  proxyAdmin = new ethers.Contract(msgConAddr, proxyAdminABI, provider);
   console.log("Owner of V1 Messaging", await proxyAdmin.owner());
 }
 
@@ -1138,7 +1176,7 @@ async function showVmInfo() {
   console.log("VaultManager Impl", impl);
   console.log("VaultManager Proxy Admin", admin);
 
-  var proxyAdmin = new ethers.Contract(admin, ownableABI, provider);
+  var proxyAdmin = new ethers.Contract(admin, proxyAdminABI, provider);
   console.log("Owner of VaultManager Proxy Admin", await proxyAdmin.owner());
 }
 
