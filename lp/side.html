@@ -208,6 +208,19 @@
       </div>
     </div>
 
+    <div class="panel is-link">
+      <p class="panel-heading">Change SidechainLP's Implementation</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">New Implementation Address</label>
+          <input class="input" type="text" id="newImplAddr" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="changeImplBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
   </section>
 
   <section id="secOperatorOps" class="section is-hidden">
@@ -585,9 +598,15 @@ const timelockABI = [
   "function isOperationReady(bytes32 id) public view returns (bool)",
 ];
 
-const ownableABI = [
+const proxyAdminABI = [
   "function owner() public view returns (address)",
-];
+  "function getProxyImplementation(address proxy) public view returns (address)",
+  "function getProxyAdmin(address proxy) public view returns (address)",
+  "function changeProxyAdmin(address proxy, address newAdmin) public",
+  "function upgrade(address proxy, address implementation) public",
+  "function upgradeAndCall(address proxy, address implementation, bytes memory data) public payable",
+]
+
 
 const minterProxyABI = [
   "function getSupportedFromTokens(uint32 _color) external view returns (address[] memory tokens)",
@@ -770,17 +789,28 @@ function getAddrAtSlot(contractAddr, slot) {
 
 u('#getProxyInfoBtn').handle('click', async (e) => {
   console.log('getProxyInfo, sideLp:', sideLp.address);
-  const implAddr = await getAddrAtSlot(sideLp.address,'0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc');
-  const adminAddr = await getAddrAtSlot(sideLp.address,'0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103');
+  const implAddr = ethers.utils.getAddress(await getAddrAtSlot(sideLp.address,'0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc'));
+  const adminAddr = ethers.utils.getAddress(await getAddrAtSlot(sideLp.address,'0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103'));
   console.log('impl:', implAddr, 'admin:', adminAddr);
 
-  const admin = new ethers.Contract(adminAddr, ownableABI, provider);
+  const admin = new ethers.Contract(adminAddr, proxyAdminABI, provider);
   const adminOwnerAddr = await admin.owner();
   console.log('adminOwner:', adminOwnerAddr);
 
   u('#proxyImplAddr').first().value = implAddr;
   u('#proxyAdminAddr').first().value = adminAddr;
   u('#proxyAdminOwnerAddr').first().value = adminOwnerAddr;
+
+  const impl2 = await admin.getProxyImplementation(sideLp.address);
+  const admin2 = await admin.getProxyAdmin(sideLp.address);
+  console.log(impl2)
+  console.log(admin2)
+  if(impl2 != implAddr) {
+     alert("Mismatch! "+ impl2 + " not "+impl)
+  }
+  if(admin2 != adminAddr) {
+     alert("Mismatch! "+ admin2 + " not "+admin)
+  }
 });
 
 u('#getBasicInfoBtn').handle('click', async (e) => {
@@ -993,6 +1023,17 @@ u('#withdrawTokenExeBtn').handle('click', async (e) => {
   const data = sideLp.interface.encodeFunctionData('withdrawToken', [addr, amt]);
   console.log('data:', data);
   await sideTl.execute(sideLp.address, 0, data, ZERO, ZERO); 
+});
+
+u('#changeImplBtn').handle('click', async (e) => {
+  console.log('changeImplBtn');
+  const newImpl = u('#newImplAddr').first().value;
+
+  const admin = await getAddrAtSlot(sideLp.address, "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103");
+
+  let proxyAdmin = new ethers.Contract(admin, proxyAdminABI, provider);
+  proxyAdmin = proxyAdmin.connect(signer);
+  await proxyAdmin.upgrade(sideLp.address, newImpl);
 });
 
 // ---------- operator ----------
