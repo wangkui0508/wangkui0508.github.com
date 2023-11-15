@@ -501,10 +501,11 @@ import u from './umbrella-3.3.0.esm.js';
 import { toast } from './bulma-toast.esm.js';
 
 const ZERO = "0x0000000000000000000000000000000000000000000000000000000000000000";
+const zeroAddr = '0x0000000000000000000000000000000000000004';
 
 const minterProxyAddr = "0x3c6CE18aFDE845635A32a69D0a7721b0Db84118e";
 
-const ethLpAddr  = '0xB9598ce5003c6F3f451fc0DE35fb9d0135c73d2E';
+// const ethLpAddr  = '0x3986D5C53cE965EA16EF66845AB56A9DdE9Cd210';
 const bscLpAddr  = '0x7F9A873cB57AF892e229b8EE445dde9372539fce';
 const avaxLpAddr = '0x728A036fBBF66FD7b09807a8d605c929B44bDF9E';
 const arbLpAddr  = '0x4607432711D0A26Bdb9DfF61A6Ab1d32780690d2';
@@ -670,9 +671,8 @@ function getSideLpInfo(chainId) {
   case    10: return [opLpAddr,     opTlAddr,     'OP'    ];
   case    56: return [bscLpAddr,    bscTlAddr,    'BSC'   ];
   case 42161: return [arbLpAddr,    arbTlAddr,    'ARB'   ]; // ArbOne
-//case 42170: return [arbLpAddr,    arbTlAddr,    'ARB'   ]; // ArbNova
   case 43114: return [avaxLpAddr,   avaxTlAddr,   'AXAX'  ];
-  case     1: return [avaxLpAddr,   avaxTlAddr,   'ETH'  ];
+  case     1: return [zeroAddr,     zeroAddr,     'ETH'   ];
   default: throw "unsupported chain:" + chainId;
   }
 }
