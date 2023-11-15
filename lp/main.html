@@ -856,10 +856,11 @@ u('#withdrawTokenBtn').handle('click', async (e) => {
   const addr = u('#withdrawTokenAddr').first().value;
   const amt = u('#withdrawTokenAmt').first().value;
   console.log(addr, amt);
-  const data = ethLp.interface.encodeFunctionData('withdrawToken', [addr, amt]);
-  console.log('data:', data);
-  console.log(decodeCalldata(ethLpAddr, data));
-  await timelockController.schedule(ethLp.address, 0, data, ZERO, ZERO, DELAY); 
+  ethLp.withdrawToken(addr, amt);
+  //const data = ethLp.interface.encodeFunctionData('withdrawToken', [addr, amt]);
+  //console.log('data:', data);
+  //console.log(decodeCalldata(ethLpAddr, data));
+  //await timelockController.schedule(ethLp.address, 0, data, ZERO, ZERO, DELAY); 
 });
 
 u('#changeImplBtn').handle('click', async (e) => {
