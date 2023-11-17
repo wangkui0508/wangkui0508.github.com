@@ -1357,8 +1357,8 @@ window.cancelBtnHandle = async function (clickID) {
 
 u('#decodeCdBtn').handle('click', async (e) => {
   console.log('decodeCalldata');
-  const addr = u('#decodeCdAddr').first().value;
-  const data = u('#decodeCdData').first().value;
+  const addr = ethers.utils.getAddress(u('#decodeCdAddr').first().value);
+  const data = u('#decodeCdData').first().value.trim();
   console.log(addr, data);
 
   const result = decodeCalldata(addr, data);
