@@ -701,7 +701,7 @@ async function connectWallet(e) {
   timelockController = timelockController.connect(signer);
 
   colorMinter = new ethers.Contract(Color2Minter, minterABI, provider);
-  //colorMinter = colorMinter.connect(signer);
+  colorMinter = colorMinter.connect(signer);
 
   const chainId = await window.ethereum.request({ method: 'eth_chainId' });
   console.log('chainId:', chainId);
