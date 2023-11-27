@@ -430,6 +430,27 @@
   <section id="secSwapOps" class="section is-hidden">
 
     <div class="panel is-link">
+      <p class="panel-heading">Mint USDV</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Receiver</label>
+          <input class="input" type="text" id="mintUsdvReceiver" />
+        </div>
+        <div class="field">
+          <label class="label">USDV Amount</label>
+          <input class="input" type="text" id="mintUsdvAmt" />
+        </div>
+        <div class="field">
+          <label class="label">Color</label>
+          <input class="input" type="number" id="mintUsdvColor" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="mintUsdvBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
       <p class="panel-heading">GetSTBTOut</p>
       <div class="box">
         <div class="field">
@@ -610,10 +631,12 @@ const erc20ABI = [
   "function allowance(address _owner, address _spender) public view returns (uint256 remaining)",
 ]
 
+
 var provider;
 var signer;
 var myAddr;
 var ethLp;
+var vm;
 var colorMinter;
 var minterProxy;
 var timelockController;
@@ -688,9 +711,14 @@ async function connectWallet(e) {
   console.log('myAddr:', myAddr);
   u("#addressHeader").text(myAddr);
 
+  await tempDebug();
+
   ethLp = new ethers.Contract(ethLpAddr, ethLpABI, provider);
   console.log('ethLp:', ethLp);
   ethLp = ethLp.connect(signer); //TEMP
+
+  vm = new ethers.Contract(VaultManagerAddr, VaultManagerABI, provider);
+  vm = vm.connect(signer); //TEMP
 
   //minterProxyAddr = await ethLp.usdvMinterProxy();
   minterProxy = new ethers.Contract(minterProxyAddr, minterProxyABI, provider);
@@ -1041,11 +1069,19 @@ u('#getRewardToUserBpsBtn').handle('click', async (e) => {
 
 // ---------- trader ----------
 
-u('#getUsdvOutBtn').handle('click', async (e) => {
-  console.log('getUsdvOut');
-  const addr = u('#getUsdvOutAddr').first().value;
-  const amt = u('#getUsdvOutAmt').first().value;
-  const verbose = u('#getUsdvOutVerbose').first().checked;
+u('#mintUsdvBtn').handle('click', async (e) => {
+  const addr = u('#mintUsdvReceiver').first().value;
+  const amt = u('#mintUsdvAmt').first().value;
+  const color = u('#mintUsdvColor').first().value;
+  console.log("mintUsdv:", addr, amt, color);
+  await vm.mint(STBTAddr, addr, amt, color, ZERO);
+});
+
+u('#getStbtOutBtn').handle('click', async (e) => {
+  console.log('getStbtOut');
+  const addr = u('#getStbtOutAddr').first().value;
+  const amt = u('#getStbtOutAmt').first().value;
+  const verbose = u('#getStbtOutVerbose').first().checked;
   console.log(addr, amt, verbose);
 
   const out1 = await ethLp.getUSDVOut(addr, amt);
@@ -1055,7 +1091,7 @@ u('#getUsdvOutBtn').handle('click', async (e) => {
     ? ({requestedOut: out2[0], rewardOut: out2[1]})
     : ({usdvOut: out1});
 
-  u('#getUsdvOutOut').first().value = JSON.stringify(out);
+  u('#getStbtOutOut').first().value = JSON.stringify(out);
 });
 
 u('#swapBtn').handle('click', async (e) => {
@@ -1171,11 +1207,13 @@ const USDVAddr = "0x0E573Ce2736Dd9637A0b21058352e1667925C7a8";
 const VaultManagerAddr = "0x2A30E3C5c9DaF417663Dd3903144B394a82C999b";
 
 const USDVABI = [
-"function getRole(uint8 r) external view returns (address)",
+  "function getRole(uint8 r) external view returns (address)",
+  "function userStates(address user) external view returns(uint32 color, uint64 balance, bool blacklisted, uint32 defaultColor)",
 ]
 
 const VaultManagerABI = [
 "function roleOf(uint8 r) external view returns (address)",
+"function mint(address _token, address _receiver, uint64 _usdvAmount, uint32 _color, bytes32 _memo) external",
 ]
 
 //enum USDV Role:
@@ -1217,7 +1255,6 @@ async function showUsdvInfo(usdvAddr) {
 }
 
 async function showVmInfo() {
-  const vm = new ethers.Contract(VaultManagerAddr, VaultManagerABI, provider);
   console.log("VMOWNER", await vm.roleOf(VMOWNER));
   console.log("VMOPERATOR", await vm.roleOf(VMOPERATOR));
   console.log("VMFOUNDATION", await vm.roleOf(VMFOUNDATION));
@@ -1243,6 +1280,18 @@ function getUsdvAddr(chainId) {
   }
 }
 
+async function tempDebug() {
+  //const safeABI = [
+  //  "function signedMessages(bytes32 msg) public view returns (uint)",
+  //]
+  //const safe = new ethers.Contract("0x107A85EA313Bb1492b8Aa771C9A0896a1DFa6112", safeABI, provider);
+  //const res = await safe.signedMessages("0x542467E10A6CBF2595D78F7BA1530420DCB99E024EEE52F7A51E4C978CA8757F");
+  //console.log("signedMessages", res)
+
+  const usdv = new ethers.Contract(USDVAddr, USDVABI, provider);
+  const res = await usdv.userStates("0x34EeB67ffED875f234c878b8DeBfE4300fBD4a41");
+  console.log("userStates", res)
+}
   </script>
   </body>
 </html>

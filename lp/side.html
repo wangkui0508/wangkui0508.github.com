@@ -556,7 +556,7 @@ const sideLpABI = [
   "function whitelisted(address) public view returns (bool)",
   "function getSupportedTokens() external view returns (address[])",
   "function getAllTokens() external view returns (address[])",
-  "function tokenConfigs(address token) public view returns (tupple(bool, uint16, uint16, address, uint, uint))",
+  "function tokenConfigs(address token) public view returns (tuple(bool, uint16, uint16, address, uint, uint))",
   "function getUSDVOut(address, uint) public view returns (uint)",
   "function getUSDVOutVerbose(address, uint) public view returns (uint, uint)",
 
@@ -613,7 +613,7 @@ const minterProxyABI = [
   "function getSupportedFromTokens(uint32 _color) external view returns (address[] memory tokens)",
   `
     function swapToUSDV(
-        tupple(address, uint, uint64) _param,
+        tuple(address, uint, uint64) _param,
         address _usdvReceiver,
         uint32 _mintColor
     ) external returns (uint usdvOut)
@@ -627,11 +627,11 @@ const minterProxyABI = [
   `,
   `
     function swapToUSDVAndSend(
-        tupple(address, uint, uint64) _param,
+        tuple(address, uint, uint64) _param,
         bytes32 _usdvReceiver,
         uint32 _dstEid,
         bytes _extraOptions,
-        tupple(uint256, uint256) _msgFee,
+        tuple(uint256, uint256) _msgFee,
         address payable _refundAddress,
         uint32 _mintColor
     ) external payable returns (uint usdvOut)
@@ -641,7 +641,7 @@ const minterProxyABI = [
 const USDVABI = [
   `
     function quoteSendFee(
-        tupple(bytes32, uint, uint, uint32) _param,
+        tuple(bytes32, uint, uint, uint32) _param,
         bytes _extraOptions,
         bool _useLZToken,
         bytes _composeMsg
@@ -649,9 +649,9 @@ const USDVABI = [
   `,
   `
     function send(
-        tupple(bytes32, uint, uint, uint32) _param,
+        tuple(bytes32, uint, uint, uint32) _param,
         bytes _extraOptions,
-        tupple(uint, uint) _msgFee,
+        tuple(uint, uint) _msgFee,
         address payable _refundAddress,
         bytes _composeMsg
     ) external payable returns (bytes32 guid, uint64 nonce, uint nativeFee, uint lzTokenFee)
@@ -677,7 +677,10 @@ function getSideLpInfo(chainId) {
   }
 }
 
-function decodeCalldata(addr, calldata) {
+async function decodeCalldata(addr, calldata) {
+  const adminAddr = await getAddrAtSlot(sideLp.address, "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103");
+  const proxyAdmin = new ethers.Contract(adminAddr, proxyAdminABI, provider);
+  let usdv;
   switch (addr) {
   case bscLpAddr:
   case avaxLpAddr:
@@ -685,6 +688,14 @@ function decodeCalldata(addr, calldata) {
   case opLpAddr:
   case goerliLpAddr:
     return decodeCalldataWithIfc(sideLp.interface, calldata);
+  case adminAddr:
+    return decodeCalldataWithIfc(proxyAdmin.interface, calldata);
+  case EthUSDVAddr:
+    usdv = new ethers.Contract(EthUSDVAddr, USDVABI, provider);
+    return decodeCalldataWithIfc(usdv.interface, calldata);
+  case SideUSDVAddr:
+    usdv = new ethers.Contract(SideUSDVAddr, USDVABI, provider);
+    return decodeCalldataWithIfc(usdv.interface, calldata);
   default:
     return "Unknown Address";
   }
@@ -1310,7 +1321,7 @@ async function collectPendingTxs(fromBlock, toBlock) {
     }
     for (const tx of pendingTXs) {
         const i = pendingTXs.indexOf(tx);
-        const t = decodeCalldata(tx.target, tx.data);
+        const t = await decodeCalldata(tx.target, tx.data);
         console.log(t);
 
         let isPending = await sideTl.isOperationPending(tx.id);
@@ -1361,7 +1372,7 @@ u('#decodeCdBtn').handle('click', async (e) => {
   const data = u('#decodeCdData').first().value.trim();
   console.log(addr, data);
 
-  const result = decodeCalldata(addr, data);
+  const result = await decodeCalldata(addr, data);
   console.log(result);
   u('#decodeCdResult').first().value = JSON.stringify(result);
 });
