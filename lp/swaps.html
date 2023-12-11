@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>USDV Swap Volume</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="../css/bulma-calendar.min.css">
+  </head>
+  <body>
+
+<section class="section">
+  <div class="field is-grouped is-grouped-multiline">
+    <p class="control">
+      <input type="date" id="startDate">
+    </p>
+    <p class="control">~</p>
+    <p class="control">
+      <input type="date" id="endDate">
+    </p>
+    <div class="control">
+      <button class="button is-link" id="refreshBtn">Refresh</button>
+    </div>
+  </div>
+  <br/>
+  <div class="panel is-link">
+    <p class="panel-heading">Swap Volume List</p>
+    <div class="box">
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Chain</th>
+              <th>Color</th>
+              <th>Minter</th>
+              <th>Swap Amount</th>
+            </tr>
+          </thead>
+          <tbody id="swapTable">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="panel is-link">
+    <p class="panel-heading">Swap Volume Chart</p>
+    <div class="box">
+      <canvas id="myChart"></canvas>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../js/bulma-calendar.min.js"></script>
+<script type="module">
+import { ethers } from "../js/ethers-5.4.esm.min.js";
+import u from '../js/umbrella-3.3.0.esm.js';
+import { toast } from '../js/bulma-toast.esm.js';
+
+
+// https://doc.mh-s.de/bulma-calendar/#installation
+
+// Initialize all input of date type.
+const calendars = bulmaCalendar.attach('[type="date"]', {
+  dateFormat: 'yyyy-MM-dd',
+});
+
+// Loop on each calendar initialized
+calendars.forEach(calendar => {
+  // Add listener to select event
+  calendar.on('select', date => {
+    console.log(date);
+  });
+});
+
+// To access to bulmaCalendar instance of an element
+const element = document.querySelector('#my-element');
+if (element) {
+  // bulmaCalendar instance is available as element.bulmaCalendar
+  element.bulmaCalendar.on('select', datepicker => {
+    console.log(datepicker.data.value());
+  });
+}
+
+u('#refreshBtn').handle('click', async (e) => {
+  console.log('refreshSwapList...');
+  
+  const startDate = u('#startDate').first().value;
+  const endDate = u('#endDate').first().value;
+  console.log('startDate:', startDate);
+  console.log('endDate:', endDate);
+
+  const todayTs0 = Math.floor(Date.now() / (24*3600*1000)) * 24*3600;
+  const startTs = startDate ? Math.floor(Date.parse(startDate) / 1000) : todayTs0;
+  const endTs = endDate ? Math.floor(Date.parse(endDate) / 1000) + 24*3600 : todayTs0 + 24*3600;
+  console.log(todayTs0, startTs, endTs);
+
+  u('#refreshBtn').first().disabled = true;
+  u('#swapTable').empty();
+
+  const rpcUrl = `http://52.76.116.155:8443/swaps?startTs=${startTs}&endTs=${endTs}`;
+  console.log(rpcUrl);
+
+  const resp = await fetch(rpcUrl);
+  const respData = await resp.json();
+  console.log(respData);
+  if (respData.ok) {
+    renderTable(respData);
+    renderChart(respData);
+  }
+
+  u('#refreshBtn').first().disabled = false;
+});
+
+
+function renderTable(respData) {
+  for (const swap of respData.swaps) {
+    u('#swapTable').append(
+`<tr>
+<td>${swap.chainId}</td>
+<td>${swap.color}</td>
+<td><code>${swap.caller}</code></td>
+<td>${swap.outAmtSum}</td>
+</tr>`
+    );
+  }
+}
+
+var myChart;
+
+// https://www.chartjs.org/docs/latest/samples/bar/stacked.html
+// https://www.chartjs.org/docs/latest/developers/updates.html
+function renderChart(respData) {
+  const chainIds = [... new Set(respData.swaps.map(x => x.chainId))].sort((a, b) => a - b);
+  const colors = [... new Set(respData.swaps.map(x => x.color))].sort((a, b) => a - b);
+  const labels = colors.map(c => `color#${c}`);
+  console.log(chainIds, colors);
+
+  const chainIdToName = new Map();
+  chainIdToName.set(1, 'Ethereum');
+  chainIdToName.set(10, 'Optimism');
+  chainIdToName.set(56, 'BSC');
+  chainIdToName.set(42161, 'Arbitrum');
+  chainIdToName.set(43114, 'Avalanche');
+
+  // chainId, color
+  const datasets = [];
+  for (const chainId of chainIds) {
+    const swaps = respData.swaps.filter(x => x.chainId == chainId);
+    const data = colors.map(c => swaps.find(x => x.color == c)?.outAmtSum || 0);
+
+    datasets.push({
+      label: chainIdToName.get(chainId) || `chain#${chainId}`,
+      data: data,
+      // backgroundColor: Utils.CHART_COLORS.red,
+    });
+  }
+
+  const config = {
+    type: 'bar',
+    data: {labels, datasets},
+    options: {
+      plugins: {
+        title: {
+          display: false,
+          text: 'Chart.js Bar Chart - Stacked'
+        },
+      },
+      responsive: true,
+      scales: {
+        x: {
+          stacked: true,
+        },
+        y: {
+          stacked: true
+        }
+      }
+    }
+  };
+
+  console.log('config:', JSON.stringify(config, null, '  '));
+  if (!myChart) {
+    const ctx = document.getElementById('myChart');
+    myChart = new Chart(ctx, config);
+  } else {
+    myChart.data = {labels, datasets};
+    myChart.update();
+  }
+}
+
+</script>
+  </body>
+</html>
