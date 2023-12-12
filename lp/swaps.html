@@ -60,27 +60,40 @@ import { toast } from './bulma-toast.esm.js';
 
 // https://doc.mh-s.de/bulma-calendar/#installation
 
-// Initialize all input of date type.
-const calendars = bulmaCalendar.attach('[type="date"]', {
+bulmaCalendar.attach('#startDate', {
   dateFormat: 'yyyy-MM-dd',
+  startDate: new Date(Date.now() - 7*24*3600*1000).toISOString().split('T')[0],
 });
+
+bulmaCalendar.attach('#endDate', {
+  dateFormat: 'yyyy-MM-dd',
+  startDate: new Date().toISOString().split('T')[0],
+});
+
+// Initialize all input of date type.
+// const calendars = bulmaCalendar.attach('[type="date"]', {
+//   dateFormat: 'yyyy-MM-dd',
+// });
+
+// calendars[0].startDate = new Date(Date.now() - 7*24*3600*1000).toISOString().split('T')[0];
+// calendars[1].startDate = new Date().toISOString().split('T')[0];
 
 // Loop on each calendar initialized
-calendars.forEach(calendar => {
-  // Add listener to select event
-  calendar.on('select', date => {
-    console.log(date);
-  });
-});
+// calendars.forEach(calendar => {
+//   // Add listener to select event
+//   calendar.on('select', date => {
+//     console.log(date);
+//   });
+// });
 
 // To access to bulmaCalendar instance of an element
-const element = document.querySelector('#my-element');
-if (element) {
-  // bulmaCalendar instance is available as element.bulmaCalendar
-  element.bulmaCalendar.on('select', datepicker => {
-    console.log(datepicker.data.value());
-  });
-}
+// const element = document.querySelector('#my-element');
+// if (element) {
+//   // bulmaCalendar instance is available as element.bulmaCalendar
+//   element.bulmaCalendar.on('select', datepicker => {
+//     console.log(datepicker.data.value());
+//   });
+// }
 
 u('#refreshBtn').handle('click', async (e) => {
   console.log('refreshSwapList...');
