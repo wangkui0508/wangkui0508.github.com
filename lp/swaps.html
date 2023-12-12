@@ -98,7 +98,7 @@ u('#refreshBtn').handle('click', async (e) => {
   u('#refreshBtn').first().disabled = true;
   u('#swapTable').empty();
 
-  const rpcUrl = `http://52.76.116.155:8443/swaps?startTs=${startTs}&endTs=${endTs}`;
+  const rpcUrl = `https://multisign.site:8443/swaps?startTs=${startTs}&endTs=${endTs}`;
   console.log(rpcUrl);
 
   const resp = await fetch(rpcUrl);
