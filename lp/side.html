@@ -1176,7 +1176,8 @@ u('#ccSendBtn').handle('click', async (e) => {
   );
 
   let [nativeFee, lzTokenFee] = await usdv.quoteSendFee([receiverAddr32, amt, amt, dstEid], adapterParams, false, "0x");
-  console.log("Fee", nativeFee, lzTokenFee)
+  nativeFee = nativeFee.mul(2);
+  console.log("Fee", nativeFee, lzTokenFee);
 
   const tx = await usdv.send([receiverAddr32, amt, amt, dstEid], adapterParams, 
     [nativeFee, lzTokenFee], receiverAddr, "0x", {value: nativeFee});
