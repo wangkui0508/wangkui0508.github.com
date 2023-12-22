@@ -88,7 +88,8 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Symbol_Decimals</th>
+                <th>Symbol</th>
+                <th>Decimals</th>
                 <th>Address</th>
                 <th>Enabled</th>
                 <th>FeeBps</th>
@@ -217,6 +218,19 @@
         </div>
         <div class="control">
           <button class="button is-link" id="changeImplBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">Transfer Ownership</p>
+      <div class="box"> 
+        <div class="field">
+          <label class="label">New Owner Address</label>
+          <input class="input" type="text" id="newOwnerAddr" />
+        </div>
+        <div class="control">
+          <button class="button is-link" id="transferOwnerBtn" disabled>Submit</button>
         </div>
       </div>
     </div>
@@ -381,7 +395,7 @@
         <div class="field">
           <label class="label">SwapParam: From Token Address</label>
           <div class="select">
-	    <select id="swapAndSendFromAddr">
+            <select id="swapAndSendFromAddr">
               <option value="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48">USDC 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48</option>
               <option value="0xdAC17F958D2ee523a2206206994597C13D831ec7">USDT 0xdAC17F958D2ee523a2206206994597C13D831ec7</option>
               <option value="0x6B175474E89094C44Da98b954EedeAC495271d0F">DAI 0x6B175474E89094C44Da98b954EedeAC495271d0F</option>
@@ -399,11 +413,13 @@
         <div class="field">
           <label class="label">USDV Receiver Address</label>
           <div class="select">
-	    <select id="swapAndSendReceiverAddr">
+            <select id="swapAndSendReceiverAddr">
               <option value="0x7F9A873cB57AF892e229b8EE445dde9372539fce">SideLp@BSC</option>
               <option value="0x728A036fBBF66FD7b09807a8d605c929B44bDF9E">SideLp@AVAX</option>
               <option value="0x4607432711D0A26Bdb9DfF61A6Ab1d32780690d2">SideLp@Arbitrum</option>
               <option value="0x5cCFd72da5bd694CB6CD2919987Ced474F8E3Fb3">SideLp@Optimism</option>
+              <option value="0x0Db498732D4cDBE0324105653d3a16E0181f6B3F">SideLp@Polygon</option>
+              <option value="0x0Db498732D4cDBE0324105653d3a16E0181f6B3F">SideLp@Viction</option>
             </select>
           </div>
         </div>
@@ -506,16 +522,20 @@ const zeroAddr = '0x0000000000000000000000000000000000000004';
 const minterProxyAddr = "0x3c6CE18aFDE845635A32a69D0a7721b0Db84118e";
 
 // const ethLpAddr  = '0x3986D5C53cE965EA16EF66845AB56A9DdE9Cd210';
-const bscLpAddr  = '0x7F9A873cB57AF892e229b8EE445dde9372539fce';
-const avaxLpAddr = '0x728A036fBBF66FD7b09807a8d605c929B44bDF9E';
-const arbLpAddr  = '0x4607432711D0A26Bdb9DfF61A6Ab1d32780690d2';
-const opLpAddr   = '0x5cCFd72da5bd694CB6CD2919987Ced474F8E3Fb3';
+const bscLpAddr     = '0x7F9A873cB57AF892e229b8EE445dde9372539fce';
+const avaxLpAddr    = '0x728A036fBBF66FD7b09807a8d605c929B44bDF9E';
+const arbLpAddr     = '0x4607432711D0A26Bdb9DfF61A6Ab1d32780690d2';
+const opLpAddr      = '0x5cCFd72da5bd694CB6CD2919987Ced474F8E3Fb3';
+const polygonLpAddr = '0x0Db498732D4cDBE0324105653d3a16E0181f6B3F';
+const victionLpAddr = '0x0Db498732D4cDBE0324105653d3a16E0181f6B3F';
 
 // TimeLock Controllers
-const bscTlAddr  = '0x0000000000000000000000000000000000000001'; // todo
-const avaxTlAddr = '0x0000000000000000000000000000000000000002'; // todo
-const arbTlAddr  = '0x0000000000000000000000000000000000000003'; // todo
-const opTlAddr   = '0x0000000000000000000000000000000000000004'; // todo
+const bscTlAddr     = '0x0000000000000000000000000000000000000001'; // todo
+const avaxTlAddr    = '0x0000000000000000000000000000000000000002'; // todo
+const arbTlAddr     = '0x0000000000000000000000000000000000000003'; // todo
+const opTlAddr      = '0x0000000000000000000000000000000000000004'; // todo
+const polygonTlAddr = '0x0000000000000000000000000000000000000004'; // todo
+const victionTlAddr = '0x0000000000000000000000000000000000000004'; // todo
 
 
 /*
@@ -566,6 +586,7 @@ const sideLpABI = [
   "function addToken(address _token, uint _cap, uint16 _feeBps, uint16 _rewardBps, address _receiver) external",
   "function removeToken(address _token) external",
   "function withdrawToken(address _token, uint _amount) external",
+  "function transferOwnership(address newOwner) public",
 
   // operator
   "function setPaused(bool _p) external",
@@ -667,13 +688,15 @@ var chainId;
 
 function getSideLpInfo(chainId) {
   switch (Number(chainId)) {
-  case     5: return [goerliLpAddr, goerliTlAddr, 'GOERLI'];
-  case    10: return [opLpAddr,     opTlAddr,     'OP'    ];
-  case    56: return [bscLpAddr,    bscTlAddr,    'BSC'   ];
-  case 42161: return [arbLpAddr,    arbTlAddr,    'ARB'   ]; // ArbOne
-  case 43114: return [avaxLpAddr,   avaxTlAddr,   'AXAX'  ];
-  case     1: return [zeroAddr,     zeroAddr,     'ETH'   ];
-  default: throw "unsupported chain:" + chainId;
+    case     5: return [goerliLpAddr,  goerliTlAddr,  'GOERLI' ];
+    case    10: return [opLpAddr,      opTlAddr,      'OP'     ];
+    case    56: return [bscLpAddr,     bscTlAddr,     'BSC'    ];
+    case 42161: return [arbLpAddr,     arbTlAddr,     'ARB'    ]; // ArbOne
+    case 43114: return [avaxLpAddr,    avaxTlAddr,    'AXAX'   ];
+    case     1: return [zeroAddr,      zeroAddr,      'ETH'    ];
+    case   137: return [polygonLpAddr, polygonLpAddr, 'Polygon'];
+    case    88: return [victionLpAddr, victionLpAddr, 'Viction'];
+    default: throw "unsupported chain:" + chainId;
   }
 }
 
@@ -687,6 +710,8 @@ async function decodeCalldata(addr, calldata) {
   case arbLpAddr:
   case opLpAddr:
   case goerliLpAddr:
+  case polygonLpAddr:
+  case victionLpAddr:
     return decodeCalldataWithIfc(sideLp.interface, calldata);
   case adminAddr:
     return decodeCalldataWithIfc(proxyAdmin.interface, calldata);
@@ -866,13 +891,14 @@ u('#getSupportedTokensBtn').handle('click', async (e) => {
 
     u('#allTokenRows').append(
 `<tr>
-  <td>${symbol} ${decimals}</td>
+  <td>${symbol}</td>
+  <td>${decimals}</td>
   <td><code>${token}</code></td>
   <td>${enabled}</td>
   <td>${feeBps}</td>
   <td>${rewardBps}</td>
   <td><code>${receiver}</code></td>
-  <td>${cap}</td>
+  <td>${ethers.utils.formatUnits(cap, decimals)}</td>
   <td>${div}</td>
 </tr>`
     );
@@ -1046,6 +1072,14 @@ u('#changeImplBtn').handle('click', async (e) => {
   proxyAdmin = proxyAdmin.connect(signer);
   await proxyAdmin.upgrade(sideLp.address, newImpl);
 });
+
+u('#transferOwnerBtn').handle('click', async (e) => {
+  console.log('transferOwnerBtn');
+  const newOwner = u('#newOwnerAddr').first().value;
+  console.log('newOwner:', newOwner);
+  await sideLp.transferOwnership(newOwner);
+});
+
 
 // ---------- operator ----------
 

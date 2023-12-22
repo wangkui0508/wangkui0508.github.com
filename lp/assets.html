@@ -53,6 +53,8 @@
               <th>AVAX</th>
               <th>ARB</th>
               <th>OP</th>
+              <th>Polygon</th>
+              <th>Viction</th>
             </tr>
           </thead>
           <tbody id="allColorRows">
@@ -70,6 +72,7 @@
 <script type="module">
 import { ethers } from "./ethers-5.4.esm.min.js";
 import u from './umbrella-3.3.0.esm.js';
+import { toast } from './bulma-toast.esm.js';
 
 const usdvABI = [
   "function name() public view returns (string)",
@@ -103,37 +106,47 @@ const stbtAddr = '0x530824DA86689C9C17CdC2871Ff29B058345b44a';
 const usdvAddr = "0x0E573Ce2736Dd9637A0b21058352e1667925C7a8";
 const _sideUsdvAddr = '0x323665443CEf804A3b5206103304BD4872EA4253';
 
-const ethLpAddr  = '0x3986D5C53cE965EA16EF66845AB56A9DdE9Cd210';
-const bscLpAddr  = '0x7F9A873cB57AF892e229b8EE445dde9372539fce';
-const avaxLpAddr = '0x728A036fBBF66FD7b09807a8d605c929B44bDF9E';
-const arbLpAddr  = '0x4607432711D0A26Bdb9DfF61A6Ab1d32780690d2';
-const opLpAddr   = '0x5cCFd72da5bd694CB6CD2919987Ced474F8E3Fb3';
+const ethLpAddr     = '0x3986D5C53cE965EA16EF66845AB56A9DdE9Cd210';
+const bscLpAddr     = '0x7F9A873cB57AF892e229b8EE445dde9372539fce';
+const avaxLpAddr    = '0x728A036fBBF66FD7b09807a8d605c929B44bDF9E';
+const arbLpAddr     = '0x4607432711D0A26Bdb9DfF61A6Ab1d32780690d2';
+const opLpAddr      = '0x5cCFd72da5bd694CB6CD2919987Ced474F8E3Fb3';
+const polygonLpAddr = '0x0Db498732D4cDBE0324105653d3a16E0181f6B3F';
+const victionLpAddr = '0x0Db498732D4cDBE0324105653d3a16E0181f6B3F';
 
-const ethRpcUrl  = 'https://rpc.ankr.com/eth  ';
-const bscRpcUrl  = 'https://binance.llamarpc.com';
-const avaxRpcUrl = 'https://avalanche.drpc.org';
-const arbRpcUrl  = 'https://arbitrum.llamarpc.com';
-const opRpcUrl   = 'https://optimism.llamarpc.com';
+const ethRpcUrl     = 'https://mainnet.infura.io/v3/cd4fb02a7b04411fb1cea2c14167838d';
+const bscRpcUrl     = 'https://bsc.publicnode.com';
+const avaxRpcUrl    = 'https://avalanche-mainnet.infura.io/v3/cd4fb02a7b04411fb1cea2c14167838d';
+const arbRpcUrl     = 'https://arbitrum-mainnet.infura.io/v3/cd4fb02a7b04411fb1cea2c14167838d';
+const opRpcUrl      = 'https://optimism-mainnet.infura.io/v3/cd4fb02a7b04411fb1cea2c14167838d';
+const polygonRpcUrl = 'https://polygon-mainnet.infura.io/v3/cd4fb02a7b04411fb1cea2c14167838d';
+const victionRpcUrl = 'https://rpc.viction.xyz';
 
-const ethProvider  = new ethers.providers.JsonRpcProvider(ethRpcUrl);
-const bscProvider  = new ethers.providers.JsonRpcProvider(bscRpcUrl);
-const avaxProvider = new ethers.providers.JsonRpcProvider(avaxRpcUrl);
-const arbProvider  = new ethers.providers.JsonRpcProvider(arbRpcUrl);
-const opProvider   = new ethers.providers.JsonRpcProvider(opRpcUrl);
+const ethProvider     = new ethers.providers.JsonRpcProvider(ethRpcUrl);
+const bscProvider     = new ethers.providers.JsonRpcProvider(bscRpcUrl);
+const avaxProvider    = new ethers.providers.JsonRpcProvider(avaxRpcUrl);
+const arbProvider     = new ethers.providers.JsonRpcProvider(arbRpcUrl);
+const opProvider      = new ethers.providers.JsonRpcProvider(opRpcUrl);
+const polygonProvider = new ethers.providers.JsonRpcProvider(polygonRpcUrl);
+const victionProvider = new ethers.providers.JsonRpcProvider(victionRpcUrl);
 
-const stbt   = new ethers.Contract(stbtAddr,   erc20ABI,  ethProvider);
-const usdv   = new ethers.Contract(usdvAddr,   usdvABI,   ethProvider);
-const ethLp  = new ethers.Contract(ethLpAddr,  ethLpABI,  ethProvider);
-const bscLp  = new ethers.Contract(bscLpAddr,  sideLpABI, bscProvider);
-const avaxLp = new ethers.Contract(avaxLpAddr, sideLpABI, avaxProvider);
-const arbLp  = new ethers.Contract(arbLpAddr,  sideLpABI, arbProvider);
-const opLp   = new ethers.Contract(opLpAddr,   sideLpABI, opProvider);
+const stbt      = new ethers.Contract(stbtAddr,      erc20ABI,  ethProvider);
+const usdv      = new ethers.Contract(usdvAddr,      usdvABI,   ethProvider);
+const ethLp     = new ethers.Contract(ethLpAddr,     ethLpABI,  ethProvider);
+const bscLp     = new ethers.Contract(bscLpAddr,     sideLpABI, bscProvider);
+const avaxLp    = new ethers.Contract(avaxLpAddr,    sideLpABI, avaxProvider);
+const arbLp     = new ethers.Contract(arbLpAddr,     sideLpABI, arbProvider);
+const opLp      = new ethers.Contract(opLpAddr,      sideLpABI, opProvider);
+const polygonLp = new ethers.Contract(polygonLpAddr, sideLpABI, polygonProvider);
+const victionLp = new ethers.Contract(victionLpAddr, sideLpABI, victionProvider);
 
-const ethUsdv  = usdv;
-const bscUsdv  = new ethers.Contract(_sideUsdvAddr, usdvABI, bscProvider);
-const avaxUsdv = new ethers.Contract(_sideUsdvAddr, usdvABI, avaxProvider);
-const arbUsdv  = new ethers.Contract(_sideUsdvAddr, usdvABI, arbProvider);
-const opUsdv   = new ethers.Contract(_sideUsdvAddr, usdvABI, opProvider);
+const ethUsdv     = usdv;
+const bscUsdv     = new ethers.Contract(_sideUsdvAddr, usdvABI, bscProvider);
+const avaxUsdv    = new ethers.Contract(_sideUsdvAddr, usdvABI, avaxProvider);
+const arbUsdv     = new ethers.Contract(_sideUsdvAddr, usdvABI, arbProvider);
+const opUsdv      = new ethers.Contract(_sideUsdvAddr, usdvABI, opProvider);
+const polygonUsdv = new ethers.Contract(_sideUsdvAddr, usdvABI, polygonProvider);
+const victionUsdv = new ethers.Contract(_sideUsdvAddr, usdvABI, victionProvider);
 
 
 async function getEthLpAssets() {
@@ -247,11 +260,13 @@ u('#getAllTokensBtn').handle('click', async (e) => {
   u('#getAllTokensBtn').first().disabled = true;
   u('#allTokenRows').empty();
 
-  const ethAssets = getEthLpAssets();
-  const bscAssets = getSideLpAssets('BSC', bscLp);
-  const avaxAssets = getSideLpAssets('AVAX', avaxLp);
-  const arbAssets = getSideLpAssets('ARB', arbLp);
-  const opAssets = getSideLpAssets('OP', opLp);
+  const ethAssets = getEthLpAssets().then(x => {dots += 'eth,'; return x});
+  const bscAssets = getSideLpAssets('BSC', bscLp).then(x => {dots += 'bsc,'; return x});
+  const avaxAssets = getSideLpAssets('AVAX', avaxLp).then(x => {dots += 'avax,'; return x});
+  const arbAssets = getSideLpAssets('ARB', arbLp).then(x => {dots += 'arb,'; return x});
+  const opAssets = getSideLpAssets('OP', opLp).then(x => {dots += 'op,'; return x});
+  const polygonAssets = getSideLpAssets('Polygon', polygonLp).then(x => {dots += 'polygon,'; return x});
+  const victionAssets = getSideLpAssets('Viction', victionLp).then(x => {dots += 'viction,'; return x});
 
   let dots = '.';
   const intervalId = setInterval(() => {
@@ -263,7 +278,10 @@ u('#getAllTokensBtn').handle('click', async (e) => {
     .concat(...(await bscAssets))
     .concat(...(await avaxAssets))
     .concat(...(await arbAssets))
-    .concat(...(await opAssets));
+    .concat(...(await opAssets))
+    .concat(...(await polygonAssets))
+    .concat(...(await victionAssets))
+    ;
   console.log('allAssets:', allAssets);
 
   clearInterval(intervalId);
@@ -302,34 +320,15 @@ u('#getAllColorsBtn').handle('click', async (e) => {
   u('#getAllColorsBtn').first().disabled = true;
   u('#allColorRows').empty();
 
-  const [ethMaxColor, bscMaxColor, avaxMaxColor, arbMaxColor, opMaxColor] = await Promise.all([
-     ethUsdv.maxKnownColor(),
-     bscUsdv.maxKnownColor(),
-     avaxUsdv.maxKnownColor(),
-     arbUsdv.maxKnownColor(),
-     opUsdv.maxKnownColor(),
-  ]);
-  console.log('ethMaxColor :', ethMaxColor);
-  console.log('bscMaxColor :', bscMaxColor);
-  console.log('avaxMaxColor:', avaxMaxColor);
-  console.log('arbMaxColor :', arbMaxColor);
-  console.log('opMaxColor  :', opMaxColor);
+  const usdvs = [ethUsdv, bscUsdv, avaxUsdv, arbUsdv, opUsdv, polygonUsdv, victionUsdv];
 
-  const [ethDeltas, bscDeltas, avaxDeltas, arbDeltas, opDeltas] = await Promise.all([
-     ethUsdv.getDeltas(0, ethMaxColor + 1),
-     bscUsdv.getDeltas(0, bscMaxColor + 1),
-     avaxUsdv.getDeltas(0, avaxMaxColor + 1),
-     arbUsdv.getDeltas(0, arbMaxColor + 1),
-     opUsdv.getDeltas(0, opMaxColor + 1),
-  ]);
-  console.log('ethDeltas :', ethDeltas);
-  console.log('bscDeltas :', bscDeltas);
-  console.log('avaxDeltas:', avaxDeltas);
-  console.log('arbDeltas :', arbDeltas);
-  console.log('opDeltas  :', opMaxColor);
-
-  const maxColor = [ethMaxColor, bscMaxColor, avaxMaxColor, arbMaxColor, opMaxColor].sort()[4];
+  const maxColors = await Promise.all(usdvs.map(x => x.maxKnownColor()));
+  console.log('maxColors:', maxColors);
+  const maxColor = maxColors.sort()[maxColors.length - 1];
   console.log('maxColor:', maxColor);
+
+  const deltasArr = await Promise.all(usdvs.map(x => x.getDeltas(0, 0)));
+  console.log('deltasArr:', deltasArr);
 
   const colors = [];
   for (let c = 1; c <= maxColor; c++) {
@@ -338,25 +337,31 @@ u('#getAllColorsBtn').handle('click', async (e) => {
   colors.push(4294967295); // theta
 
   for (let c of colors) {
-    const ethDelta  = ethDeltas.find(x => x.color == c)  || {amount: 0};
-    const bscDelta  = bscDeltas.find(x => x.color == c)  || {amount: 0};
-    const avaxDelta = avaxDeltas.find(x => x.color == c) || {amount: 0};
-    const arbDelta  = arbDeltas.find(x => x.color == c)  || {amount: 0};
-    const opDelta   = opDeltas.find(x => x.color == c)   || {amount: 0};
+    const ethDelta     = deltasArr[0].find(x => x.color == c) || {amount: 0};
+    const bscDelta     = deltasArr[1].find(x => x.color == c) || {amount: 0};
+    const avaxDelta    = deltasArr[2].find(x => x.color == c) || {amount: 0};
+    const arbDelta     = deltasArr[3].find(x => x.color == c) || {amount: 0};
+    const opDelta      = deltasArr[4].find(x => x.color == c) || {amount: 0};
+    const polygonDelta = deltasArr[5].find(x => x.color == c) || {amount: 0};
+    const victionDelta = deltasArr[6].find(x => x.color == c) || {amount: 0};
     if (ethDelta.amount != 0 ||
         bscDelta.amount != 0 ||
         avaxDelta.amount != 0 ||
         arbDelta.amount != 0 ||
-        opDelta.amount != 0) {
+        opDelta.amount != 0 ||
+        polygonDelta.amount != 0 ||
+        victionDelta.amount != 0) {
 
       u('#allColorRows').append(
 `<tr>
   <td>${c}</td>
-  <td ${txtColor(ethDelta.amount) }>${ethers.utils.formatUnits(ethDelta.amount , 6)}</td>
-  <td ${txtColor(bscDelta.amount) }>${ethers.utils.formatUnits(bscDelta.amount , 6)}</td>
-  <td ${txtColor(avaxDelta.amount)}>${ethers.utils.formatUnits(avaxDelta.amount, 6)}</td>
-  <td ${txtColor(arbDelta.amount) }>${ethers.utils.formatUnits(arbDelta.amount , 6)}</td>
-  <td ${txtColor(opDelta.amount)  }>${ethers.utils.formatUnits(opDelta.amount  , 6)}</td>
+  <td ${txtColor(ethDelta.amount)    }>${ethers.utils.formatUnits(ethDelta.amount    , 6)}</td>
+  <td ${txtColor(bscDelta.amount)    }>${ethers.utils.formatUnits(bscDelta.amount    , 6)}</td>
+  <td ${txtColor(avaxDelta.amount)   }>${ethers.utils.formatUnits(avaxDelta.amount   , 6)}</td>
+  <td ${txtColor(arbDelta.amount)    }>${ethers.utils.formatUnits(arbDelta.amount    , 6)}</td>
+  <td ${txtColor(opDelta.amount)     }>${ethers.utils.formatUnits(opDelta.amount     , 6)}</td>
+  <td ${txtColor(polygonDelta.amount)}>${ethers.utils.formatUnits(polygonDelta.amount, 6)}</td>
+  <td ${txtColor(victionDelta.amount)}>${ethers.utils.formatUnits(victionDelta.amount, 6)}</td>
 </tr>`
       );
     }
