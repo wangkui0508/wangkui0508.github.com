@@ -1020,9 +1020,10 @@ u('#delTokenSchBtn').handle('click', async (e) => {
   const tokenAddr = u('#delTokenAddr').first().value;
   console.log(tokenAddr);
 
-  const data = sideLp.interface.encodeFunctionData('removeToken', [tokenAddr]);
-  console.log('data:', data);
-  await sideTl.schedule(sideLp.address, 0, data, ZERO, ZERO, 0); 
+  await sideLp.removeToken(tokenAddr);
+  //const data = sideLp.interface.encodeFunctionData('removeToken', [tokenAddr]);
+  //console.log('data:', data);
+  //await sideTl.schedule(sideLp.address, 0, data, ZERO, ZERO, 0); 
 });
 u('#delTokenExeBtn').handle('click', async (e) => {
   console.log('delToken execute');
