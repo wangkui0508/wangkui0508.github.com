@@ -711,7 +711,7 @@ async function connectWallet(e) {
   console.log('myAddr:', myAddr);
   u("#addressHeader").text(myAddr);
 
-  await tempDebug();
+  //await tempDebug();
 
   ethLp = new ethers.Contract(ethLpAddr, ethLpABI, provider);
   console.log('ethLp:', ethLp);
