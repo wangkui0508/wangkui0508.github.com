@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>All LP Assets</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  </head>
+  <body>
+
+<section class="section">
+  <div class="panel is-link">
+    <p class="panel-heading">All Assets</p>
+    <div class="box">
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Chain</th>
+              <th>Symbol</th>
+              <!-- <th>Decimals</th> -->
+              <th>Address</th>
+              <th>Balance</th>
+              <th>Paused</th>
+              <th>Cap</th>
+              <th>FeeBps</th>
+              <th>RewardBps</th>
+              <th>Receiver</th>
+              <!-- <th>Mul/Div</th> -->
+              <th>EndOfService</th>
+              <th>OverflowAction</th>
+            </tr>
+          </thead>
+          <tbody id="allTokenRows">
+          </tbody>
+        </table>
+      </div>
+      <div class="control">
+        <button class="button is-link" id="getAllTokensBtn">Refresh</button>
+      </div>
+    </div>
+  </div>
+  <div class="panel is-link">
+    <p class="panel-heading">All Colors</p>
+    <div class="box">
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Color\Chain</th>
+              <th>ETH</th>
+              <th>BSC</th>
+              <th>AVAX</th>
+              <th>ARB</th>
+              <th>OP</th>
+              <th>Polygon</th>
+              <th>Viction</th>
+            </tr>
+          </thead>
+          <tbody id="allColorRows">
+          </tbody>
+        </table>
+      </div>
+      <div class="control">
+        <button class="button is-link" id="getAllColorsBtn">Refresh</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<script type="module">
+import { ethers } from "../js/ethers-5.4.esm.min.js";
+import u from '../js/umbrella-3.3.0.esm.js';
+import { toast } from '../js/bulma-toast.esm.js';
+
+const usdvABI = [
+  "function name() public view returns (string)",
+  "function symbol() public view returns (string)",
+  "function decimals() public view returns (uint8)",
+  "function balanceOf(address _owner) public view returns (uint256 balance)",
+  "function maxKnownColor() external view returns (uint32)",
+  "function getDeltas(uint32 _startColor, uint32 _endColor) external view returns (tuple(uint32 color, int64 amount)[])",
+];
+
+const ethLpABI = [
+  "function getSupportedTokens() external view returns (address[])",
+  "function getAllTokens() external view returns (address[])",
+  "function tokenConfigs(address token) public view returns (tuple(uint64 mul, uint64 endOfService, uint96 balanceCap, uint16 feeBps, uint16 rewardBps, bool paused, uint8 overflowAction, address receiver))",
+];
+const sideLpABI = [
+  "function usdv() public view returns (address)",
+  "function getSupportedTokens() external view returns (address[])",
+  "function getAllTokens() external view returns (address[])",
+  "function tokenConfigs(address token) public view returns (tupple(bool, uint16, uint16, address, uint, uint))",
+];
+const erc20ABI = [
+  "function name() public view returns (string)",
+  "function symbol() public view returns (string)",
+  "function decimals() public view returns (uint8)",
+  "function balanceOf(address _owner) public view returns (uint256 balance)",
+];
+
+// Goerli
+const stbtAddr  = '0x0f539454d2Effd45E9bFeD7C57B2D48bFd04CB32';
+const usdvAddr  = "0x0516ABcF93c00aAf9120Cf5d18535506d54BCcbA";
+const ethLpAddr = '0x94b9E6Dc10f196A048989604b6D8dF152C88a351';
+
+const bscUsdvAddr     = '0xf10be20E035c00e9f9448d1Edb7770E3e1187965';
+const avaxUsdvAddr    = '0xf10be20E035c00e9f9448d1Edb7770E3e1187965';
+const arbUsdvAddr     = '0xf10be20E035c00e9f9448d1Edb7770E3e1187965';
+const opUsdvAddr      = '0xf10be20E035c00e9f9448d1Edb7770E3e1187965';
+const polygonUsdvAddr = '0xf10be20E035c00e9f9448d1Edb7770E3e1187965';
+const victionUsdvAddr = '0xbf22ba1bA63CaDc6A339d551945b02F4dD102Ae0';
+
+const bscLpAddr     = '0xeD18bd3D30EDfdc15D655AA1eD776651d1E88C7D';
+const avaxLpAddr    = '0xE8C2789D44AFa22749Db9373C71DD8f742780CbB';
+const arbLpAddr     = '0x3c1d2ace5f37719DB4071aD7a9C2b1bfbb6A5569';
+const opLpAddr      = '0xD641e5809Be6AFea904224543Bf49f616411E3D9';
+const polygonLpAddr = '0x2Ad2fA336c9eBdD5B03a3D2A23B0B0ce076C6E19';
+const victionLpAddr = '0xb4FC62b4f001534C734aD1b459908A2FC4BB256c';
+
+const ethRpcUrl     = 'https://ethereum-goerli.publicnode.com';
+const bscRpcUrl     = 'https://bsc-testnet.publicnode.com';
+const avaxRpcUrl    = 'https://avalanche-fuji-c-chain.publicnode.com';
+const arbRpcUrl     = 'https://arbitrum-goerli.publicnode.com';
+const opRpcUrl      = 'https://optimism-goerli.publicnode.com';
+const polygonRpcUrl = 'https://polygon-mumbai-bor.publicnode.com';
+const victionRpcUrl = 'https://rpc.testnet.tomochain.com';
+
+const ethProvider     = new ethers.providers.JsonRpcProvider(ethRpcUrl);
+const bscProvider     = new ethers.providers.JsonRpcProvider(bscRpcUrl);
+const avaxProvider    = new ethers.providers.JsonRpcProvider(avaxRpcUrl);
+const arbProvider     = new ethers.providers.JsonRpcProvider(arbRpcUrl);
+const opProvider      = new ethers.providers.JsonRpcProvider(opRpcUrl);
+const polygonProvider = new ethers.providers.JsonRpcProvider(polygonRpcUrl);
+const victionProvider = new ethers.providers.JsonRpcProvider(victionRpcUrl);
+
+const stbt      = new ethers.Contract(stbtAddr,      erc20ABI,  ethProvider);
+const usdv      = new ethers.Contract(usdvAddr,      usdvABI,   ethProvider);
+const ethLp     = new ethers.Contract(ethLpAddr,     ethLpABI,  ethProvider);
+const bscLp     = new ethers.Contract(bscLpAddr,     sideLpABI, bscProvider);
+const avaxLp    = new ethers.Contract(avaxLpAddr,    sideLpABI, avaxProvider);
+const arbLp     = new ethers.Contract(arbLpAddr,     sideLpABI, arbProvider);
+const opLp      = new ethers.Contract(opLpAddr,      sideLpABI, opProvider);
+const polygonLp = new ethers.Contract(polygonLpAddr, sideLpABI, polygonProvider);
+const victionLp = new ethers.Contract(victionLpAddr, sideLpABI, victionProvider);
+
+const ethUsdv     = usdv;
+const bscUsdv     = new ethers.Contract(bscUsdvAddr, usdvABI, bscProvider);
+const avaxUsdv    = new ethers.Contract(avaxUsdvAddr, usdvABI, avaxProvider);
+const arbUsdv     = new ethers.Contract(arbUsdvAddr, usdvABI, arbProvider);
+const opUsdv      = new ethers.Contract(opUsdvAddr, usdvABI, opProvider);
+const polygonUsdv = new ethers.Contract(polygonUsdvAddr, usdvABI, polygonProvider);
+const victionUsdv = new ethers.Contract(victionUsdvAddr, usdvABI, victionProvider);
+
+
+async function getEthLpAssets() {
+  console.log('getEthLpAssets ...');
+
+  const ethBal = await ethProvider.getBalance(ethLpAddr);
+  console.log('ethBal:', ethBal);
+  const stbtBal = await stbt.balanceOf(ethLpAddr);
+  console.log('stbtBal:', stbtBal);
+  const usdvBal = await usdv.balanceOf(ethLpAddr);
+  console.log('usdvBal:', usdvBal);
+
+  const allTokens = await ethLp.getAllTokens();
+  console.log('eth allTokens:', allTokens);
+
+  const tokenConfigs = [];
+  for (let token of allTokens) {
+    const cfg = await ethLp.tokenConfigs(token);
+    tokenConfigs.push(cfg);
+    console.log('eth token cfg:', cfg);
+  }
+
+  const assets = [
+    {chain: 'ETH', symbol: 'ETH', decimals: 18, address: '0x', balance: ethers.utils.formatUnits(ethBal, 18)},
+    {chain: 'ETH', symbol: 'STBT', decimals: 18, address: stbtAddr, balance: ethers.utils.formatUnits(stbtBal, 18)},
+    {chain: 'ETH', symbol: 'USDV', decimals: 18, address: usdvAddr, balance: ethers.utils.formatUnits(usdvBal, 18)},
+  ];
+  for (let i = 0; i < allTokens.length; i++) {
+    const token = allTokens[i];
+    const cfg = tokenConfigs[i];
+    const erc20 = new ethers.Contract(token, erc20ABI, ethProvider);
+    const symbol = await erc20.symbol();
+    const decimals = await erc20.decimals();
+    const bal = await erc20.balanceOf(ethLpAddr);
+    assets.push({
+      chain         : 'ETH',
+      symbol        : symbol,
+      decimals      : decimals,
+      balance       : ethers.utils.formatUnits(bal, decimals),
+      address       : token,
+      paused        : cfg.paused,
+      balanceCap    : ethers.utils.formatUnits(cfg.balanceCap, decimals),
+      feeBps        : cfg.feeBps,
+      rewardBps     : cfg.rewardBps,
+      receiver      : cfg.receiver,
+      mul           : cfg.mul,
+      endOfService  : cfg.endOfService,
+      overflowAction: cfg.overflowAction,
+    });
+  }
+  return assets;
+}
+
+async function getSideLpAssets(chain, sideLp) {
+  console.log('getSideLpAssets:', chain);
+
+  const ethBal = await sideLp.provider.getBalance(sideLp.address);
+  console.log('ethBal:', ethBal);
+
+  const sideUsdvAddr = await sideLp.usdv();
+  console.log('usdvAddr:', sideUsdvAddr);
+  const usdv = new ethers.Contract(sideUsdvAddr, erc20ABI, sideLp.provider);
+  const usdvBal = await usdv.balanceOf(sideLp.address);
+  console.log('usdvBal:', usdvBal);
+
+  const allTokens = await sideLp.getAllTokens();
+  console.log(chain, 'allTokens:', allTokens);
+  // const supportedTokens = await sideLp.getSupportedTokens();
+  // console.log('supportedTokens:', supportedTokens);
+
+  const tokenConfigs = [];
+  for (let token of allTokens) {
+    const cfg = await sideLp.tokenConfigs(token);
+    tokenConfigs.push(cfg);
+    console.log(chain, 'token cfg:', cfg);
+  }
+
+  const assets = [
+    {chain: chain, symbol: chain, decimals: 18, address: '0x', balance: ethers.utils.formatUnits(ethBal, 18)},
+    {chain: chain, symbol: 'USDV', decimals: 6, address: sideUsdvAddr, balance: ethers.utils.formatUnits(usdvBal, 6)},
+  ];
+  for (let i = 0; i < allTokens.length; i++) {
+    const token = allTokens[i];
+    const [enabled, feeBps, rewardBps, receiver, cap, div] = tokenConfigs[i];
+    const erc20 = new ethers.Contract(token, erc20ABI, sideLp.provider);
+    const symbol = await erc20.symbol();
+    const decimals = await erc20.decimals();
+    const bal = await erc20.balanceOf(sideLp.address);
+    assets.push({
+      chain         : chain,
+      symbol        : symbol,
+      decimals      : decimals,
+      balance       : ethers.utils.formatUnits(bal, decimals),
+      address       : token,
+      paused        : !enabled,
+      balanceCap    : ethers.utils.formatUnits(cap, decimals),
+      feeBps        : feeBps,
+      rewardBps     : rewardBps,
+      receiver      : receiver,
+      mul           : div, // TODO
+    });
+  }
+
+  return assets;
+}
+
+
+u('#getAllTokensBtn').handle('click', async (e) => {
+  console.log('getAllTokens');
+
+  u('#getAllTokensBtn').first().disabled = true;
+  u('#allTokenRows').empty();
+
+  const ethAssets = getEthLpAssets().then(x => {dots += 'eth,'; return x});
+  const bscAssets = getSideLpAssets('BSC', bscLp).then(x => {dots += 'bsc,'; return x});
+  const avaxAssets = getSideLpAssets('AVAX', avaxLp).then(x => {dots += 'avax,'; return x});
+  const arbAssets = getSideLpAssets('ARB', arbLp).then(x => {dots += 'arb,'; return x});
+  const opAssets = getSideLpAssets('OP', opLp).then(x => {dots += 'op,'; return x});
+  const polygonAssets = getSideLpAssets('Polygon', polygonLp).then(x => {dots += 'polygon,'; return x});
+  const victionAssets = getSideLpAssets('Viction', victionLp).then(x => {dots += 'viction,'; return x});
+
+  let dots = '.';
+  const intervalId = setInterval(() => {
+    u('#getAllTokensBtn').first().innerText = dots;
+    dots += '.';
+  }, 1000);
+
+  const allAssets = (await ethAssets)
+    .concat(...(await bscAssets))
+    .concat(...(await avaxAssets))
+    .concat(...(await arbAssets))
+    .concat(...(await opAssets))
+    .concat(...(await polygonAssets))
+    .concat(...(await victionAssets))
+    ;
+  console.log('allAssets:', allAssets);
+
+  clearInterval(intervalId);
+  u('#getAllTokensBtn').first().disabled = false;
+  u('#getAllTokensBtn').first().innerText = 'Refresh';
+
+  for (let i = 0; i < allAssets.length; i++) {
+    const asset = allAssets[i];
+    u('#allTokenRows').append(
+`<tr>
+  <td>${asset.chain}</td>
+  <td>${asset.symbol}</td>
+  <!-- <td>${asset.decimals}</td> -->
+  <td><code>${asset.address}</code></td>
+  <td>${asset.balance}</td>
+  <td>${fieldToStr(asset.paused)}</td>
+  <td>${fieldToStr(asset.balanceCap)}</td>
+  <td>${fieldToStr(asset.feeBps)}</td>
+  <td>${fieldToStr(asset.rewardBps)}</td>
+  <td><code>${fieldToStr(asset.receiver)}</code></td>
+  <!-- <td>${fieldToStr(asset.mul)}</td> -->
+  <td>${fieldToStr(asset.endOfService)}</td>
+  <td>${fieldToStr(asset.overflowAction)}</td>
+</tr>`
+    );
+  }
+});
+
+function fieldToStr(field) {
+  return field == undefined ? 'N/A' : field;
+}
+
+u('#getAllColorsBtn').handle('click', async (e) => {
+  console.log('getAllColors');
+
+  u('#getAllColorsBtn').first().disabled = true;
+  u('#allColorRows').empty();
+
+  const usdvs = [ethUsdv, bscUsdv, avaxUsdv, arbUsdv, opUsdv, polygonUsdv, victionUsdv];
+
+  const maxColors = await Promise.all(usdvs.map(x => x.maxKnownColor()));
+  console.log('maxColors:', maxColors);
+  const maxColor = maxColors.sort((a, b) => a - b)[maxColors.length - 1];
+  console.log('maxColor:', maxColor);
+
+  const deltasArr = await Promise.all(usdvs.map(x => x.getDeltas(0, 0)));
+  console.log('deltasArr:', deltasArr);
+
+  const colors = [];
+  for (let c = 1; c <= maxColor; c++) {
+    colors.push(c);
+  }
+  colors.push(4294967295); // theta
+
+  for (let c of colors) {
+    const ethDelta     = deltasArr[0].find(x => x.color == c) || {amount: 0};
+    const bscDelta     = deltasArr[1].find(x => x.color == c) || {amount: 0};
+    const avaxDelta    = deltasArr[2].find(x => x.color == c) || {amount: 0};
+    const arbDelta     = deltasArr[3].find(x => x.color == c) || {amount: 0};
+    const opDelta      = deltasArr[4].find(x => x.color == c) || {amount: 0};
+    const polygonDelta = deltasArr[5].find(x => x.color == c) || {amount: 0};
+    const victionDelta = deltasArr[6].find(x => x.color == c) || {amount: 0};
+    if (ethDelta.amount != 0 ||
+        bscDelta.amount != 0 ||
+        avaxDelta.amount != 0 ||
+        arbDelta.amount != 0 ||
+        opDelta.amount != 0 ||
+        polygonDelta.amount != 0 ||
+        victionDelta.amount != 0) {
+
+      u('#allColorRows').append(
+`<tr>
+  <td>${c}</td>
+  <td ${txtColor(ethDelta.amount)    }>${ethers.utils.formatUnits(ethDelta.amount    , 6)}</td>
+  <td ${txtColor(bscDelta.amount)    }>${ethers.utils.formatUnits(bscDelta.amount    , 6)}</td>
+  <td ${txtColor(avaxDelta.amount)   }>${ethers.utils.formatUnits(avaxDelta.amount   , 6)}</td>
+  <td ${txtColor(arbDelta.amount)    }>${ethers.utils.formatUnits(arbDelta.amount    , 6)}</td>
+  <td ${txtColor(opDelta.amount)     }>${ethers.utils.formatUnits(opDelta.amount     , 6)}</td>
+  <td ${txtColor(polygonDelta.amount)}>${ethers.utils.formatUnits(polygonDelta.amount, 6)}</td>
+  <td ${txtColor(victionDelta.amount)}>${ethers.utils.formatUnits(victionDelta.amount, 6)}</td>
+</tr>`
+      );
+    }
+  }
+
+  u('#getAllColorsBtn').first().disabled = false;
+});
+
+function txtColor(amt) {
+  if (amt > 0) {
+    return `style="color: green;"`;
+  } else if (amt < 0) {
+    return `style="color: red;"`;
+  } else {
+    return ``;
+  }
+}
+
+</script>
+  </body>
+</html>
