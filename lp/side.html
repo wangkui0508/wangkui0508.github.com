@@ -448,7 +448,7 @@
           <input class="input" type="text" id="ccSendReceiverAddr" />
         </div>
         <div class="field">
-          <label class="label">DST EID (eth=101 bsc=102 avax=106 arb=110 op=111)</label>
+          <label class="label">DST EID (eth=101 bsc=102 avax=106 arb=110 op=111 polygon=109 viction=196)</label>
           <input class="input" type="text" id="ccSendDstEid" />
         </div>
         <div class="control">
@@ -660,6 +660,7 @@ const minterProxyABI = [
 ];
 
 const USDVABI = [
+  "function getRole(uint8 _role) public view returns (address)",
   `
     function quoteSendFee(
         tuple(bytes32, uint, uint, uint32) _param,
@@ -814,6 +815,12 @@ async function connectWallet(e) {
   console.log('sideTl:', sideTl);
 
   u("#addressHeader").text(`${myAddr}|${chainName}`);
+  const usdv = new ethers.Contract(SideUSDVAddr, USDVABI, provider);
+  console.log('role 0:', await usdv.getRole(0));
+  console.log('role 1:', await usdv.getRole(1));
+  console.log('role 2:', await usdv.getRole(2));
+  console.log('role 3:', await usdv.getRole(3));
+  console.log('role 4:', await usdv.getRole(4));
 };
 
 // ---------- info ----------
