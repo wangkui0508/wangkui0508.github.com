@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CC</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  </head>
+  <body>
+
+  <div class="box">
+    <div class="control">
+	    <button class="button is-link" id="connectBtn">Connect</button><br>
+	    <button class="button is-link" id="acceptOwnerBtn">Connect</button><br>
+    </div>
+  </div>
+
+  <script type="module">
+import { ethers } from "./ethers-5.4.esm.min.js";
+import u from './umbrella-3.3.0.esm.js';
+
+async function acceptOwner(isMainChain = true) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum)
+
+    // await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const connectedAddr = await signer.getAddress();
+    console.log('connected address:', connectedAddr);
+
+    // eth mainnet or arb one
+    const messagerAddr = isMainChain ? '0xBAa370135ec8ec5A6d2cf3434EE56ecdC32Cb690' : "0x498058c757542863dfC7b40f9C6e8c94FB3B9e1F";
+    const abi = [
+        `function acceptOwnership() external`,
+    ];
+    const messager = new ethers.Contract(messagerAddr, abi, signer);
+    const tx = await messager.acceptOwnership();
+    console.log(tx);
+}
+
+async function connectWallet(e) {
+  console.log(window.ethereum)
+  provider = new ethers.providers.Web3Provider(window.ethereum)
+  
+  await provider.send("eth_requestAccounts", []);
+}
+  
+u('#connectBtn').handle('click', connectWallet);
+u('#acceptOwnerBtn').handle('click', acceptOwner);
+  </script>
+  </body>
+</html>
