@@ -39,7 +39,7 @@ async function acceptOwner(isMainChain = true) {
 
 async function connectWallet(e) {
   console.log(window.ethereum)
-  provider = new ethers.providers.Web3Provider(window.ethereum)
+  var provider = new ethers.providers.Web3Provider(window.ethereum)
   
   await provider.send("eth_requestAccounts", []);
 }
