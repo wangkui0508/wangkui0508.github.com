@@ -11,7 +11,8 @@
   <div class="box">
     <div class="control">
 	    <button class="button is-link" id="connectBtn">Connect</button><br>
-	    <button class="button is-link" id="acceptOwnerBtn">Connect</button><br>
+	    <button class="button is-link" id="acceptOwnerBtn">acceptOwner on Eth</button><br>
+	    <button class="button is-link" id="acceptOwnerArbBtn">acceptOwner on Arb</button><br>
     </div>
   </div>
 
@@ -37,6 +38,10 @@ async function acceptOwner(isMainChain = true) {
     console.log(tx);
 }
 
+async function acceptOwnerOnArb() {
+  acceptOwner(false);
+}
+
 async function connectWallet(e) {
   console.log(window.ethereum)
   var provider = new ethers.providers.Web3Provider(window.ethereum)
@@ -46,6 +51,7 @@ async function connectWallet(e) {
   
 u('#connectBtn').handle('click', connectWallet);
 u('#acceptOwnerBtn').handle('click', acceptOwner);
+u('#acceptOwnerArbBtn').handle('click', acceptOwnerOnArb);
   </script>
   </body>
 </html>
