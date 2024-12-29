@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>STBT DevOps Frontend</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  </head>
+  <body>
+
+  <section class="section">
+    <div class="panel is-link">
+      <p class="panel-heading">CCWSTBT.SetPermission</p>
+      <div class="box">
+        <div class="field">
+          <label class="label">Account (address)</label>
+          <input class="input" type="text" placeholder="0x0000000000000000000000000000000000000000" id="account">
+        </div>
+        <div class="field">
+          <label class="label">SendAllowed (bool)</label>
+          <input class="input" type="text" placeholder="false" id="sendAllowedVal">
+        </div>
+        <div class="field">
+          <label class="label">ReceiveAllowed (bool)</label>
+          <input class="input" type="text" placeholder="false" id="receiveAllowedVal">
+        </div>
+        <div class="field">
+          <label class="label">expiryTime (uint64)</label>
+          <input class="input" type="number" placeholder="0" id="expiryTimeVal">
+        </div>
+        <div class="control">
+          <button class="button is-link" id="setPermissionBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel is-link">
+      <p class="panel-heading">CCWSTBTMessager.AcceptOwnership</p>
+      <div class="box">
+        <div class="control">
+          <button class="button is-link" id="acceptOwnershipBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+  <script type="module">
+import { ethers } from "./js/ethers-5.4.esm.min.js";
+import u from './js/umbrella-3.3.0.esm.js';
+import { toast } from './js/bulma-toast.esm.js';
+
+
+// A Web3Provider wraps a standard Web3 provider, which is
+// what MetaMask injects as window.ethereum into each page
+const provider = new ethers.providers.Web3Provider(window.ethereum)
+
+// MetaMask requires requesting permission to connect users accounts
+await provider.send("eth_requestAccounts", []);
+
+// The MetaMask plugin also allows signing transactions to
+// send ether and pay to change state within the blockchain.
+// For this, you need the account signer...
+const signer = provider.getSigner();
+const myAddr = await signer.getAddress();
+console.log('myAddr:', myAddr);
+
+const ccwstbtAddr = '0x88BFaaa980FAb8fB57A0C9979e2Abc21Aa930f82';
+const ccwstbtABI = [
+        `function setPermission(address addr, tuple(bool, bool, uint64) permission) public`,
+];
+const ccwstbt = new ethers.Contract(ccwstbtAddr, ccwstbtABI, signer);
+
+const ccwstbtMessagerAddr = '0x2A918B3A032174dd89C3d9e7F27EA0D7710bbf18';
+const ccwstbtMessagerABI = [
+  `function acceptOwnership() public`,
+];
+const ccwstbtMessager = new ethers.Contract(ccwstbtMessagerAddr, ccwstbtMessagerABI, signer);
+
+u('#setPermissionBtn').handle('click', async (e) => {
+  const account = u('#account').first().value;
+  let sendAllowed = u('#sendAllowedVal').first().value;
+  let receiveAllowed = u('#receiveAllowedVal').first().value;
+  const expiryTime = u('#expiryTimeVal').first().value;
+
+  sendAllowed = sendAllowed === "true";
+  receiveAllowed = receiveAllowed === "true";
+
+  u('#setPermissionBtn').first().disabled = true;
+  try {
+    await sendPermission(account, sendAllowed, receiveAllowed, expiryTime);
+    showMsg('ok');
+  } catch (err) {
+    showErr(err);
+  }
+  u('#setPermissionBtn').first().disabled = false;
+});
+
+u('#acceptOwnershipBtn').handle('click', async (e) => {
+  u('#acceptOwnershipBtn').first().disabled = true;
+  try {
+    await acceptOwnership();
+    showMsg('ok');
+  } catch (err) {
+    showErr(err);
+  }
+  u('#acceptOwnershipBtn').first().disabled = false;
+});
+
+function showMsg(msg) {
+  toast({
+    message: msg.toString(),
+    type: 'is-info',
+    dismissible: true,
+    duration: 2000,
+    // animate: { in: 'fadeIn', out: 'fadeOut' },
+  });
+}
+function showErr(err) {
+  toast({
+    message: '<code>' + JSON.stringify(err).replaceAll('\n', '<br/>') + '</code>',
+    type: 'is-warning',
+    dismissible: true,
+    duration: 20000,
+    // animate: { in: 'fadeIn', out: 'fadeOut' },
+  });
+}
+
+async function sendPermission(account, sendAllowed, receiveAllowed, expiryTime) {
+  console.log("sendPermission params:", account, sendAllowed, receiveAllowed, expiryTime);
+  const tx = await ccwstbt.setPermission(account, [sendAllowed, receiveAllowed, expiryTime]);
+  console.log(tx);
+}
+async function acceptOwnership() {
+  console.log("call acceptOwnership:", ccwstbtMessager.address);
+  const tx = await ccwstbtMessager.acceptOwnership();
+  console.log(tx);
+}
+  </script>
+  </body>
+</html>
